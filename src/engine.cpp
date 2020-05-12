@@ -8,7 +8,8 @@
 Engine* Engine::INSTANCE = 0;
 
 void errorCallback(int error, const char* description) {
-	std::cerr << "Error: " << error << "\n" << description << "\n";
+	Logger::log("Error", error);
+	Logger::log("     ", description);
 }
 
 void Engine::glfwKeyCallback(GLFWwindow*, int key, int scancode, int action, int mods) {
@@ -39,7 +40,6 @@ Engine::Engine(unsigned int width, unsigned int height) {
 	glfwSetErrorCallback(errorCallback);
 
 	_window = glfwCreateWindow(width, height, "hello", 0, 0);
-
 	glfwSetKeyCallback(_window, &Engine::glfwKeyCallback);
 
 	if (!_window) {
