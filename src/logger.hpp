@@ -54,17 +54,17 @@ namespace Logger {
 
 	template <typename ...A>
 	inline void log(const A ...args) {
-		std::cout << getTime() << ": " << logString(args...) << "\e[0m" << std::endl;
+		std::cout << timestring() << ": " << logString(args...) << "\e[0m" << std::endl;
 	}
 
 	template <typename ...A>
 	inline void error(const A ...args) {
-		std::cerr << "\e[31m" << getTime() << ": " << logString(args...) << "\e[0m" << std::endl;
+		std::cerr << "\e[31m" << timestring() << ": " << logString(args...) << "\e[0m" << std::endl;
 	}
 
 	template <typename ...A>
 	inline void warn(const A ...args) {
-		std::cerr << "\e[33m" << getTime() << ": " << logString(args...) << "\e[0m" << std::endl;
+		std::cerr << "\e[33m" << timestring() << ": " << logString(args...) << "\e[0m" << std::endl;
 	}
 };
 
