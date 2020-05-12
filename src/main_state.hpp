@@ -19,6 +19,7 @@ class MainState : public GameState {
 	private:
 		ShaderProgram _shaderProgram;
 		GLuint _vertexBuffer;
+		GLuint _colorBuffer;
 };
 
 #endif

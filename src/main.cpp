@@ -1,6 +1,7 @@
 #include "engine.hpp"
 #include "main_state.hpp"
 #include "logger.hpp"
+#include <iostream>
 
 int main() {
 	glfwWindowHint(GLFW_CLIENT_API, GLFW_OPENGL_ES_API);
@@ -9,7 +10,8 @@ int main() {
 	glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 0);
 
 	if (!glfwInit()) {
-		throw "Could not initialize glfw";
+		std::cerr << "Could not initialize glfw" << std::endl;
+		return 1;
 	}
 
 	try {
@@ -19,6 +21,8 @@ int main() {
 		engine.start();
 	} catch (const char* msg) {
 		Logger::error("Main caught exception:", msg);
+		glfwTerminate();
+		return 1;
 	}
 
 	glfwTerminate();

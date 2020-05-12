@@ -10,6 +10,12 @@ static const GLfloat g_vertex_buffer_data[] = {
 	-1.0f,  1.0f, 0.0f,
 };
 
+static const GLfloat g_color_buffer_data[] = {
+	1.0, 0.0, 0.0,
+	0.0, 1.0, 0.0,
+	0.0, 0.0, 1.0
+};
+
 MainState::MainState(Engine& engine)
 : GameState(engine), _shaderProgram(ShaderProgram::load("shaders/main")) {
 	Logger::log("Constructing MainState");
@@ -17,6 +23,10 @@ MainState::MainState(Engine& engine)
 	glGenBuffers(1, &_vertexBuffer);
 	glBindBuffer(GL_ARRAY_BUFFER, _vertexBuffer);
 	glBufferData(GL_ARRAY_BUFFER, sizeof(g_vertex_buffer_data), g_vertex_buffer_data, GL_STATIC_DRAW);
+
+	glGenBuffers(1, &_colorBuffer);
+	glBindBuffer(GL_ARRAY_BUFFER, _colorBuffer);
+	glBufferData(GL_ARRAY_BUFFER, sizeof(g_color_buffer_data), g_color_buffer_data, GL_STATIC_DRAW);
 }
 
 MainState::~MainState() {
@@ -50,6 +60,17 @@ void MainState::draw() {
 
 	glVertexAttribPointer(
 		0,
+		3,
+		GL_FLOAT,
+		GL_FALSE,
+		0,
+		0
+	);
+
+	_shaderProgram.bindBuffer("aColor", GL_ARRAY_BUFFER, _colorBuffer);
+
+	glVertexAttribPointer(
+		1,
 		3,
 		GL_FLOAT,
 		GL_FALSE,
