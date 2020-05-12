@@ -130,9 +130,11 @@ void Engine::pushState(GameState* state) {
 
 void Engine::popState() {
 	if (_states.empty()) {
+		Logger::log("No more states to pop");
 		return;
 	}
 
+	Logger::log("Deleting top state");
 	delete _states.top();
 	_states.pop();
 }

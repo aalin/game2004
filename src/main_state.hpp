@@ -18,6 +18,7 @@ class MainState : public GameState {
 		void keyRelease(int) { }
 	private:
 		ShaderProgram _shaderProgram;
+		GLuint _vertexBuffer;
 };
 
 #endif

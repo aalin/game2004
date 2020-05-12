@@ -22,15 +22,32 @@ ShaderProgram::ShaderProgram(Shader &vertShader, Shader &fragShader) {
 	glGetProgramiv(_program, GL_LINK_STATUS, &status);
 
 	if (status == GL_FALSE) {
-		GLint log_length;
-		glGetProgramiv(_program, GL_INFO_LOG_LENGTH, &log_length);
-		GLchar *info_log = new GLchar[log_length + 1];
-		glGetProgramInfoLog(_program, log_length, NULL, info_log);
+		GLint logLength;
+		glGetProgramiv(_program, GL_INFO_LOG_LENGTH, &logLength);
+		GLchar *infoLog = new GLchar[logLength + 1];
+		glGetProgramInfoLog(_program, logLength, NULL, infoLog);
 		Logger::error("Linker failure:");
-		Logger::error(info_log);
-		delete[] info_log;
+		Logger::error(infoLog);
+		delete[] infoLog;
 
 		throw "Could not link shader program";
+	}
+
+	int numUniforms = 0;
+	glGetProgramiv(_program, GL_ACTIVE_UNIFORMS, &numUniforms);
+
+	for (GLint i = 0; i < numUniforms; i++) {
+		GLint size;
+		GLenum type;
+		GLsizei bufSize = 32;
+		GLchar name[bufSize];
+		GLsizei length;
+
+		glGetActiveUniform(_program, i, bufSize, &length, &size, &type, name);
+		const std::string sname = std::string(name, length);
+
+		Logger::log("name", sname, "position", i, "length", length);
+		_uniformLocations[sname] = i;
 	}
 }
 

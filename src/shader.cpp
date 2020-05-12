@@ -35,11 +35,11 @@ Shader::Shader(ShaderType shaderType, std::string filename) {
 	GLint status;
 	glGetShaderiv(_shader, GL_COMPILE_STATUS, &status);
 	if (status == GL_FALSE) {
-		GLint log_length;
-		glGetShaderiv(_shader, GL_INFO_LOG_LENGTH, &log_length);
+		GLint logLength;
+		glGetShaderiv(_shader, GL_INFO_LOG_LENGTH, &logLength);
 
-		GLchar *info = new GLchar[log_length + 1];
-		glGetShaderInfoLog(_shader, log_length, NULL, info);
+		GLchar *info = new GLchar[logLength + 1];
+		glGetShaderInfoLog(_shader, logLength, NULL, info);
 
 		Logger::error("Errors compiling ", filename);
 		Logger::error(info);
