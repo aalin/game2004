@@ -1,11 +1,27 @@
 #include "engine.hpp"
 #include "main_state.hpp"
+#include "logger.hpp"
 
 int main() {
-	Engine engine(800, 600);
+	glfwWindowHint(GLFW_CLIENT_API, GLFW_OPENGL_ES_API);
+	glfwWindowHint(GLFW_CONTEXT_CREATION_API, GLFW_NATIVE_CONTEXT_API);
+	glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 2);
+	glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 0);
 
-	engine.pushState(new MainState(engine));
-	engine.start();
+	if (!glfwInit()) {
+		throw "Could not initialize glfw";
+	}
+
+	try {
+		Engine engine(800, 600);
+
+		engine.pushState(new MainState(engine));
+		engine.start();
+	} catch (const char* msg) {
+		Logger::error("Main caught exception:", msg);
+	}
+
+	glfwTerminate();
 
 	return 0;
 }

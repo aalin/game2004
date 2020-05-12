@@ -1,8 +1,8 @@
 #include "engine.hpp"
 #include "game_state.hpp"
 #include "logger.hpp"
+#include "opengl.hpp"
 #include <GLFW/glfw3.h>
-#include <GLES2/gl2.h>
 #include <iostream>
 
 Engine* Engine::INSTANCE = 0;
@@ -26,15 +26,6 @@ Engine::Engine(unsigned int width, unsigned int height) {
 
 	if (Engine::getInstance() != 0) {
 		throw "There is already an instance of Engine";
-	}
-
-	glfwWindowHint(GLFW_CLIENT_API, GLFW_OPENGL_ES_API);
-	glfwWindowHint(GLFW_CONTEXT_CREATION_API, GLFW_NATIVE_CONTEXT_API);
-	glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 2);
-	glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 0);
-
-	if (!glfwInit()) {
-		throw "Could not initialize glfw";
 	}
 
 	glfwSetErrorCallback(errorCallback);
@@ -62,7 +53,6 @@ Engine::~Engine() {
 
 	INSTANCE = 0;
 	glfwDestroyWindow(_window);
-	glfwTerminate();
 }
 
 void Engine::start() {
@@ -76,31 +66,36 @@ void Engine::start() {
 void Engine::loop() {
 	double lastTime = glfwGetTime();
 
-	while (_running) {
-		double currentTime = glfwGetTime();
-		double delta = currentTime - lastTime;
+	try {
+		while (_running) {
+			double currentTime = glfwGetTime();
+			double delta = currentTime - lastTime;
 
-		if (glfwWindowShouldClose(_window)) {
-			_running = false;
-			return;
+			if (glfwWindowShouldClose(_window)) {
+				_running = false;
+				return;
+			}
+
+			glfwPollEvents();
+
+			if (_states.empty()) {
+				Logger::log("Stopping because there are no states");
+				_running = false;
+				break;
+			}
+
+			GameState* currentState = _states.top();
+
+			currentState->update(delta);
+			currentState->draw();
+
+			glfwSwapBuffers(_window);
+
+			lastTime = currentTime;
 		}
-
-		glfwPollEvents();
-
-		if (_states.empty()) {
-			Logger::log("Stopping because there are no states");
-			_running = false;
-			break;
-		}
-
-		GameState* currentState = _states.top();
-
-		currentState->update(delta);
-		currentState->draw();
-
-		glfwSwapBuffers(_window);
-
-		lastTime = currentTime;
+	} catch (char* const msg) {
+		Logger::error("Got exception:", msg);
+		_running = false;
 	}
 }
 
@@ -134,8 +129,10 @@ void Engine::pushState(GameState* state) {
 }
 
 void Engine::popState() {
-	_states.pop();
+	if (_states.empty()) {
+		return;
+	}
 
-	if(_states.empty())
-		stop();
+	delete _states.top();
+	_states.pop();
 }
