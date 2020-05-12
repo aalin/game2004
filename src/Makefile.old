@@ -1,0 +1,9 @@
+CXX=g++
+CXX_OPTS=-Wall
+LIBS=-lglfw -lGLESv2 -lEGL
+
+default: main.cpp
+	$(CXX) $(CXX_OPTS) $(LIBS) -o game main.cpp
+
+logger: logger.cpp logger.hpp
+	$(CXX) $(CXX_OPTS) $(LIBS) -o logger logger.cpp
