@@ -46,8 +46,8 @@ void MainState::draw() {
 
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-	glEnableVertexAttribArray(0);
-	glBindBuffer(GL_ARRAY_BUFFER, _vertexBuffer);
+	_shaderProgram.bindBuffer("aPosition", GL_ARRAY_BUFFER, _vertexBuffer);
+
 	glVertexAttribPointer(
 		0,
 		3,

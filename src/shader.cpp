@@ -23,9 +23,8 @@ std::string readFile(std::string filename) {
 }
 
 Shader::Shader(ShaderType shaderType, std::string filename) {
+	Logger::log("Loading shader source", filename);
 	std::string source = readFile(filename);
-	Logger::log("Shader source", filename);
-	Logger::log(source);
 
 	_shader = glCreateShader(shaderType);
 	const char* data = source.c_str();

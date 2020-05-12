@@ -14,7 +14,7 @@ std::string Logger::timestring() {
 	const size_t size = 14;
 
 	std::string timestr(size, '\0');
-	std::snprintf(&timestr[0], size, "%14.10f", glfwGetTime());
+	std::snprintf(&timestr[0], size, "%13.9f", glfwGetTime());
 	return timestr;
 }
 

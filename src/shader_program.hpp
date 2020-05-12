@@ -29,20 +29,29 @@ class ShaderProgram {
 		}
 
 		void uniform(std::string name, const glm::mat4& matrix) {
-			if (_uniforms.count(name) == 0) {
-				Logger::error("Could not find uniform", name, "in shader");
-				return;
-			}
+			glUniformMatrix4fv(getAttribute(name, _uniforms).location, 1, GL_FALSE, &matrix[0][0]);
+		}
 
-			const int location = _uniforms[name].location;
+		void bindBuffer(std::string name, GLenum type, GLint buffer) {
+			const Attribute &attribute = getAttribute(name, _attributes);
 
-			glUniformMatrix4fv(location, 1, GL_FALSE, &matrix[0][0]);
+			glEnableVertexAttribArray(attribute.location);
+			glBindBuffer(type, buffer);
 		}
 
 	private:
 		AttributeMap _uniforms;
 		AttributeMap _attributes;
 		unsigned int _program;
+
+		const Attribute& getAttribute(std::string name, const AttributeMap &attributes) const {
+			if (attributes.count(name) == 0) {
+				Logger::error("Could not find uniform", name, "in shader");
+				throw;
+			}
+
+			return attributes.at(name);
+		}
 };
 
 #endif
