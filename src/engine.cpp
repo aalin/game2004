@@ -11,6 +11,15 @@ void errorCallback(int error, const char* description) {
 	std::cerr << "Error: " << error << "\n" << description << "\n";
 }
 
+void Engine::glfwKeyCallback(GLFWwindow*, int key, int scancode, int action, int mods) {
+	if (Engine::INSTANCE == 0) {
+		Logger::log("Instance is 0");
+		return;
+	}
+
+	INSTANCE->keyboard(key, scancode, action, mods);
+}
+
 Engine::Engine(unsigned int width, unsigned int height) {
 	_running = false;
 
@@ -38,9 +47,22 @@ Engine::Engine(unsigned int width, unsigned int height) {
 		throw "Could not create window";
 	}
 
+	INSTANCE = this;
+
 	glfwMakeContextCurrent(_window);
 	glfwSwapInterval(1);
+}
 
+Engine::~Engine() {
+	Logger::log("Destroying engine");
+
+	while (!_states.empty()) {
+		popState();
+	}
+
+	INSTANCE = 0;
+	glfwDestroyWindow(_window);
+	glfwTerminate();
 }
 
 void Engine::start() {
@@ -83,11 +105,15 @@ void Engine::loop() {
 }
 
 void Engine::stop() {
+	Logger::log("Stopping engine");
 	_running = false;
 }
 
 void Engine::keyboard(int key, int scancode, int action, int mods) {
+	Logger::log("Key:", key, "scancode:", scancode, "action:", action, "mods:", mods);
+
 	if (key == GLFW_KEY_ESCAPE && action == GLFW_PRESS) {
+		Logger::log("Escape was pressed");
 		glfwSetWindowShouldClose(_window, GLFW_TRUE);
 	}
 
@@ -112,10 +138,4 @@ void Engine::popState() {
 
 	if(_states.empty())
 		stop();
-}
-
-Engine::~Engine() {
-	INSTANCE = 0;
-	glfwDestroyWindow(_window);
-	glfwTerminate();
 }

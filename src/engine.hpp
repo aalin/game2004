@@ -17,13 +17,7 @@ class Engine {
 		void pushState(GameState*);
 		void popState();
 
-		static void glfwKeyCallback(GLFWwindow*, int key, int scancode, int action, int mods) {
-			if (INSTANCE == 0) {
-				return;
-			}
-
-			INSTANCE->keyboard(key, scancode, action, mods);
-		}
+		static void glfwKeyCallback(GLFWwindow*, int key, int scancode, int action, int mods);
 
 		void keyboard(int key, int scancode, int action, int mods);
 

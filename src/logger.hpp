@@ -7,6 +7,7 @@
 
 namespace Logger {
 	std::string timestring();
+	double getTime();
 
 	template<typename V>
 	std::string valueColor(V) {
@@ -15,7 +16,7 @@ namespace Logger {
 
 	inline std::string valueColor(const char*) { return "\e[32m"; }
 	inline std::string valueColor(std::string) { return "\e[32m"; }
-	inline std::string valueColor(int) { return "\e[34m"; }
+	inline std::string valueColor(int) { return "\e[33m"; }
 	inline std::string valueColor(float) { return "\e[33m"; }
 	inline std::string valueColor(double) { return "\e[33m"; }
 
