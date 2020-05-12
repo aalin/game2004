@@ -1,6 +1,40 @@
 #include "shader_program.hpp"
 #include "logger.hpp"
 
+ShaderProgram::AttributeMap getAttributes(int program, GLenum attributeType) {
+	int numAttributes = 0;
+	glGetProgramiv(program, attributeType, &numAttributes);
+
+	ShaderProgram::AttributeMap attributes;
+
+	GLsizei bufSize = 32;
+	GLchar name[bufSize];
+	GLsizei length;
+
+	for (GLint i = 0; i < numAttributes; i++) {
+		ShaderProgram::Attribute attribute;
+
+		switch (attributeType) {
+			case GL_ACTIVE_ATTRIBUTES:
+				glGetActiveAttrib(program, i, bufSize, &length, &attribute.size, &attribute.type, name);
+				break;
+			case GL_ACTIVE_UNIFORMS:
+				glGetActiveUniform(program, i, bufSize, &length, &attribute.size, &attribute.type, name);
+				break;
+			default:
+				throw;
+		}
+
+		attribute.location = i;
+		attribute.name = std::string(name, length);
+
+		Logger::log(attributeType, "name", attribute.name, "location", attribute.location, "size", attribute.size);
+		attributes[attribute.name] = attribute;
+	}
+
+	return attributes;
+}
+
 ShaderProgram ShaderProgram::load(std::string basename) {
 	Shader vertShader(Shader::VertexShader, basename + ".vert.glsl");
 	Shader fragShader(Shader::FragmentShader, basename + ".frag.glsl");
@@ -33,22 +67,8 @@ ShaderProgram::ShaderProgram(Shader &vertShader, Shader &fragShader) {
 		throw "Could not link shader program";
 	}
 
-	int numUniforms = 0;
-	glGetProgramiv(_program, GL_ACTIVE_UNIFORMS, &numUniforms);
-
-	for (GLint i = 0; i < numUniforms; i++) {
-		GLint size;
-		GLenum type;
-		GLsizei bufSize = 32;
-		GLchar name[bufSize];
-		GLsizei length;
-
-		glGetActiveUniform(_program, i, bufSize, &length, &size, &type, name);
-		const std::string sname = std::string(name, length);
-
-		Logger::log("name", sname, "position", i, "length", length);
-		_uniformLocations[sname] = i;
-	}
+	_attributes = getAttributes(_program, GL_ACTIVE_ATTRIBUTES);
+	_uniforms = getAttributes(_program, GL_ACTIVE_UNIFORMS);
 }
 
 ShaderProgram::~ShaderProgram() {

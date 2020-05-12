@@ -8,6 +8,15 @@
 
 class ShaderProgram {
 	public:
+		struct Attribute {
+			std::string name;
+			GLenum type;
+			GLsizei size;
+			GLuint location;
+		};
+
+		typedef std::map<std::string, Attribute> AttributeMap;
+
 		ShaderProgram(Shader& vertexShader, Shader& fragmentShader);
 		~ShaderProgram();
 
@@ -20,17 +29,19 @@ class ShaderProgram {
 		}
 
 		void uniform(std::string name, const glm::mat4& matrix) {
-			if (_uniformLocations.count(name) == 0) {
+			if (_uniforms.count(name) == 0) {
 				Logger::error("Could not find uniform", name, "in shader");
 				return;
 			}
 
-			const int location = _uniformLocations[name];
+			const int location = _uniforms[name].location;
+
 			glUniformMatrix4fv(location, 1, GL_FALSE, &matrix[0][0]);
 		}
 
 	private:
-		std::map<std::string, int> _uniformLocations;
+		AttributeMap _uniforms;
+		AttributeMap _attributes;
 		unsigned int _program;
 };
 
