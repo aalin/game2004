@@ -4,17 +4,18 @@
 #include <glm/glm.hpp>
 #include <glm/ext.hpp>
 
-MainState::MainState(Engine& engine)
-	:	GameState(engine),
-		_shaderProgram(ShaderProgram::load("shaders/main")),
-		//_triangleMesh(Mesh::PrimitiveType::Triangles) {
-		_triangleMesh(GL_TRIANGLES) {
+MainState::MainState(Engine& engine) :
+GameState(engine),
+_shaderProgram(ShaderProgram::load("shaders/main")),
+_levelShader(ShaderProgram::load("shaders/level")),
+_triangleMesh(Mesh::PrimitiveType::Triangles),
+_level("levels/level1") {
 	Logger::log("Constructing MainState");
 
 	_triangleMesh.addBuffer("aPosition", std::vector<glm::vec3>({
-		glm::vec3(-1.0f,-1.0f, 0.0f),
-		glm::vec3( 1.0f,-1.0f, 0.0f),
-		glm::vec3(-1.0f, 1.0f, 0.0f),
+		glm::vec3(-1.0f,-1.0f, 5.0f),
+		glm::vec3( 1.0f,-1.0f, 5.0f),
+		glm::vec3(-1.0f, 1.0f, 5.0f),
 	}));
 
 	_triangleMesh.addBuffer("aColor", std::vector<glm::vec3>({
@@ -40,16 +41,21 @@ void MainState::draw() {
 	const float y = (std::sin(glfwGetTime() / 1.0)) * 1.0;
 
 	glm::mat4 viewMatrix = glm::lookAt(
-		glm::vec3(x, y, 10),
-		glm::vec3(0, 0, 0),
+		glm::vec3(x, y - 7, 10),
+		glm::vec3(0, 10, 0),
 		glm::vec3(0, 0, 1)
 	);
 
 	glm::mat4 modelMatrix(1.0);
 
+	glm::mat4 mvp = projMatrix * viewMatrix * modelMatrix;
+
+	_levelShader.use();
+	_levelShader.uniform("MVP", mvp);
+	_level.render(_levelShader);
+
 	_shaderProgram.use();
-
-	_shaderProgram.uniform("MVP", projMatrix * viewMatrix * modelMatrix);
-
+	_shaderProgram.uniform("MVP", mvp);
 	_triangleMesh.render(_shaderProgram);
+
 }

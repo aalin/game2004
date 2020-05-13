@@ -13,9 +13,8 @@ class Mesh {
 			Triangles = GL_TRIANGLES
 		};
 
-		Mesh(GLenum primitiveType) {
-			//_mode = static_cast<GLenum>(primitiveType);
-			_mode = primitiveType;
+		Mesh(PrimitiveType primitiveType) {
+			_mode = static_cast<GLenum>(primitiveType);
 			_size = 0;
 		}
 

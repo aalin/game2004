@@ -68,6 +68,11 @@ void Engine::start() {
 void Engine::loop() {
 	double lastTime = glfwGetTime();
 
+	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+	glEnable(GL_DEPTH_TEST);
+	glEnable(GL_CULL_FACE);
+	glEnable(GL_BLEND);
+
 	try {
 		while (_running) {
 			double currentTime = glfwGetTime();

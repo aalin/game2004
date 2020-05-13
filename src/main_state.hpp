@@ -5,6 +5,7 @@
 #include "engine.hpp"
 #include "shader_program.hpp"
 #include "mesh.hpp"
+#include "level.hpp"
 
 class MainState : public GameState {
 	public:
@@ -18,7 +19,10 @@ class MainState : public GameState {
 
 	private:
 		ShaderProgram _shaderProgram;
+		ShaderProgram _levelShader;
 		Mesh _triangleMesh;
+
+		Level _level;
 };
 
 #endif
