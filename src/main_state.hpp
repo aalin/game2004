@@ -4,6 +4,7 @@
 #include "game_state.hpp"
 #include "engine.hpp"
 #include "shader_program.hpp"
+#include "mesh.hpp"
 
 class MainState : public GameState {
 	public:
@@ -16,10 +17,10 @@ class MainState : public GameState {
 		void draw();
 		void keyPress(int) { }
 		void keyRelease(int) { }
+
 	private:
 		ShaderProgram _shaderProgram;
-		GLuint _vertexBuffer;
-		GLuint _colorBuffer;
+		Mesh _triangleMesh;
 };
 
 #endif

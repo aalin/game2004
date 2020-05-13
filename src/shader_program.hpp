@@ -22,7 +22,7 @@ class ShaderProgram {
 
 		static ShaderProgram load(std::string basename);
 
-		void use() { glUseProgram(_program); }
+		void use() const { glUseProgram(_program); };
 
 		unsigned int getId() const {
 			return _program;
@@ -32,11 +32,18 @@ class ShaderProgram {
 			glUniformMatrix4fv(getAttribute(name, _uniforms).location, 1, GL_FALSE, &matrix[0][0]);
 		}
 
-		void bindBuffer(std::string name, GLenum type, GLint buffer) {
+		unsigned int bindBuffer(std::string name, GLenum type, GLint buffer) const {
 			const Attribute &attribute = getAttribute(name, _attributes);
 
 			glEnableVertexAttribArray(attribute.location);
 			glBindBuffer(type, buffer);
+
+			return attribute.location;
+		}
+
+		void disableBuffer(std::string name) const {
+			const Attribute &attribute = getAttribute(name, _attributes);
+			glDisableVertexAttribArray(attribute.location);
 		}
 
 	private:

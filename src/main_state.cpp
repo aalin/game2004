@@ -4,29 +4,24 @@
 #include <glm/glm.hpp>
 #include <glm/ext.hpp>
 
-static const GLfloat g_vertex_buffer_data[] = {
-	-1.0f, -1.0f, 0.0f,
-	1.0f, -1.0f, 0.0f,
-	-1.0f,  1.0f, 0.0f,
-};
-
-static const GLfloat g_color_buffer_data[] = {
-	1.0, 0.0, 0.0,
-	0.0, 1.0, 0.0,
-	0.0, 0.0, 1.0
-};
-
 MainState::MainState(Engine& engine)
-: GameState(engine), _shaderProgram(ShaderProgram::load("shaders/main")) {
+	:	GameState(engine),
+		_shaderProgram(ShaderProgram::load("shaders/main")),
+		//_triangleMesh(Mesh::PrimitiveType::Triangles) {
+		_triangleMesh(GL_TRIANGLES) {
 	Logger::log("Constructing MainState");
 
-	glGenBuffers(1, &_vertexBuffer);
-	glBindBuffer(GL_ARRAY_BUFFER, _vertexBuffer);
-	glBufferData(GL_ARRAY_BUFFER, sizeof(g_vertex_buffer_data), g_vertex_buffer_data, GL_STATIC_DRAW);
+	_triangleMesh.addBuffer("aPosition", std::vector<glm::vec3>({
+		glm::vec3(-1.0f,-1.0f, 0.0f),
+		glm::vec3( 1.0f,-1.0f, 0.0f),
+		glm::vec3(-1.0f, 1.0f, 0.0f),
+	}));
 
-	glGenBuffers(1, &_colorBuffer);
-	glBindBuffer(GL_ARRAY_BUFFER, _colorBuffer);
-	glBufferData(GL_ARRAY_BUFFER, sizeof(g_color_buffer_data), g_color_buffer_data, GL_STATIC_DRAW);
+	_triangleMesh.addBuffer("aColor", std::vector<glm::vec3>({
+		glm::vec3(1.0f, 0.0f, 0.0f),
+		glm::vec3(0.0f, 1.0f, 0.0f),
+		glm::vec3(0.0f, 0.0f, 1.0f),
+	}));
 }
 
 MainState::~MainState() {
@@ -37,6 +32,8 @@ void MainState::update(double) {
 }
 
 void MainState::draw() {
+	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
 	glm::mat4 projMatrix = glm::perspective(45.0, 4.0 / 3.0, 0.1, 100.0);
 
 	const float x = (std::cos(glfwGetTime() / 1.0)) * 1.0;
@@ -54,30 +51,5 @@ void MainState::draw() {
 
 	_shaderProgram.uniform("MVP", projMatrix * viewMatrix * modelMatrix);
 
-	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-
-	_shaderProgram.bindBuffer("aPosition", GL_ARRAY_BUFFER, _vertexBuffer);
-
-	glVertexAttribPointer(
-		0,
-		3,
-		GL_FLOAT,
-		GL_FALSE,
-		0,
-		0
-	);
-
-	_shaderProgram.bindBuffer("aColor", GL_ARRAY_BUFFER, _colorBuffer);
-
-	glVertexAttribPointer(
-		1,
-		3,
-		GL_FLOAT,
-		GL_FALSE,
-		0,
-		0
-	);
-
-	glDrawArrays(GL_TRIANGLES, 0, 3);
-	glDisableVertexAttribArray(0);
+	_triangleMesh.render(_shaderProgram);
 }

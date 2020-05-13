@@ -22,6 +22,8 @@ void Engine::glfwKeyCallback(GLFWwindow*, int key, int scancode, int action, int
 }
 
 Engine::Engine(unsigned int width, unsigned int height) {
+	Logger::log("Constructing engine");
+
 	_running = false;
 
 	if (Engine::getInstance() != 0) {
@@ -88,6 +90,8 @@ void Engine::loop() {
 
 			currentState->update(delta);
 			currentState->draw();
+
+			glPrintErrors();
 
 			glfwSwapBuffers(_window);
 
