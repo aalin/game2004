@@ -38,6 +38,25 @@ glm::vec3 colorAt(float x) {
     );
 }
 
+void addQuad(std::vector<glm::vec3> &vertices, glm::vec3 v00, glm::vec3 v01, glm::vec3 v10, glm::vec3 v11) {
+	vertices.push_back(v00);
+	vertices.push_back(v01);
+	vertices.push_back(v11);
+
+	vertices.push_back(v00);
+	vertices.push_back(v11);
+	vertices.push_back(v10);
+}
+
+int getSegmentValue(const std::vector<Level::Segment> &segments, unsigned int x, unsigned int y) {
+	const int value = segments[y].blocks[9 - x - 1] - 48;
+
+	if (value < 0 || value > 9) {
+		return -1;
+	}
+
+	return value;
+}
 
 Level::Level(const char *filename) :
 _mesh(Mesh::PrimitiveType::Triangles) {
@@ -48,11 +67,11 @@ _mesh(Mesh::PrimitiveType::Triangles) {
 	std::vector<glm::vec3> vertices;
 	std::vector<glm::vec3> colors;
 
-	unsigned int y = 0;
+	for (unsigned int y = 0; y < _segments.size(); y++) {
+		for (unsigned int x = 0; x < 9; x++) {
+			const int value = getSegmentValue(_segments, x, y);
 
-	for (const auto &segment : _segments) {
-		for (int x = 0; x < 9; x++) {
-			if (segment.blocks[8 - x] != 'x') {
+			if (value == -1) {
 				continue;
 			}
 
@@ -62,27 +81,40 @@ _mesh(Mesh::PrimitiveType::Triangles) {
 			const float y0 = y;
 			const float y1 = y + 1;
 
-			vertices.push_back({ x0, y0, 0.0 });
-			vertices.push_back({ x1, y0, 0.0 });
-			vertices.push_back({ x1, y1, 0.0 });
+			const float z = value / 2.0;
 
-			vertices.push_back({ x0, y0, 0.0 });
-			vertices.push_back({ x1, y1, 0.0 });
-			vertices.push_back({ x0, y1, 0.0 });
+			addQuad(
+				vertices,
+				glm::vec3({ x0, y0, z }),
+				glm::vec3({ x1, y0, z }),
+				glm::vec3({ x0, y1, z }),
+				glm::vec3({ x1, y1, z })
+			);
 
-			const glm::vec3 c0 = colorAt(y0 / 100);
-			const glm::vec3 c1 = colorAt(y1 / 100);
+			const glm::vec3 c0 = colorAt(y0 / 100 + z / 20);
+			const glm::vec3 c1 = colorAt(y1 / 100 + z / 20);
 
-			colors.push_back(c0);
-			colors.push_back(c0);
-			colors.push_back(c1);
+			addQuad(colors, c0, c0, c1, c1);
 
-			colors.push_back(c0);
-			colors.push_back(c1);
-			colors.push_back(c1);
+			if (y > 0) {
+				const int prevValue = getSegmentValue(_segments, x, y - 1);
+
+				if (prevValue >= 0 && prevValue != value) {
+					const float z2 = prevValue / 2.0;
+					Logger::log("prevValue", prevValue);
+
+					addQuad(
+						vertices,
+						glm::vec3({ x1, y0, z }),
+						glm::vec3({ x0, y0, z }),
+						glm::vec3({ x1, y0, z2 }),
+						glm::vec3({ x0, y0, z2 })
+					);
+
+					addQuad(colors, c0, c0, c0, c0);
+				}
+			}
 		}
-
-		y++;
 	}
 
 	_mesh.addBuffer("aPosition", vertices);
