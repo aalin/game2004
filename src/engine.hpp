@@ -3,6 +3,7 @@
 
 #include <GLFW/glfw3.h>
 #include <stack>
+#include "keyboard.hpp"
 
 class GameState;
 
@@ -34,6 +35,8 @@ class Engine {
 		void loop();
 
 		std::stack<GameState*> _states;
+
+		Keyboard _keyboard;
 };
 
 

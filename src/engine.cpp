@@ -88,7 +88,7 @@ void Engine::loop() {
 
 			GameState* currentState = _states.top();
 
-			currentState->update(delta);
+			currentState->update(delta, _keyboard);
 			currentState->draw();
 
 			glPrintErrors();
@@ -109,20 +109,19 @@ void Engine::stop() {
 }
 
 void Engine::keyboard(int key, int scancode, int action, int mods) {
-	Logger::log("Key:", key, "scancode:", scancode, "action:", action, "mods:", mods);
-
 	if (key == GLFW_KEY_ESCAPE && action == GLFW_PRESS) {
 		Logger::log("Escape was pressed");
 		glfwSetWindowShouldClose(_window, GLFW_TRUE);
 	}
 
-	if(_states.empty())
-		return;
-
-	if(action == GLFW_PRESS)
-		_states.top()->keyPress(key);
-	else if(action == GLFW_RELEASE)
-		_states.top()->keyRelease(key);
+	switch (action) {
+		case GLFW_PRESS:
+			_keyboard.handlePress(key, scancode, mods);
+			return;
+		case GLFW_RELEASE:
+			_keyboard.handleRelease(key);
+			return;
+	}
 }
 
 void Engine::pushState(GameState* state) {

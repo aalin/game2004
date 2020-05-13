@@ -43,7 +43,7 @@ class Mesh {
 				entry.second->attribPointer(shaderProgram, entry.first);
 			}
 
-			Logger::log("Drawing arrays, size:", _size);
+			// Logger::log("Drawing arrays, size:", _size);
 
 			glDrawArrays(_mode, 0, _size);
 

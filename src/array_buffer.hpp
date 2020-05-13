@@ -29,7 +29,7 @@ class ArrayBuffer {
 		void attribPointer(const ShaderProgram &shaderProgram, const std::string &name) const {
 			unsigned int location = shaderProgram.bindBuffer(name, GL_ARRAY_BUFFER, _arrayBufferId);
 
-			Logger::log("Binding", name, "to", location, "size:", _vertexSize);
+			// Logger::log("Binding", name, "to", location, "size:", _vertexSize);
 
 			glVertexAttribPointer(
 				location,

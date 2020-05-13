@@ -13,10 +13,8 @@ class MainState : public GameState {
 
 		void setup() { }
 		void pause() { }
-		void update(double);
+		void update(double, const Keyboard &);
 		void draw();
-		void keyPress(int) { }
-		void keyRelease(int) { }
 
 	private:
 		ShaderProgram _shaderProgram;

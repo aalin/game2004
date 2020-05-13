@@ -28,7 +28,7 @@ MainState::~MainState() {
 	Logger::log("Destructing MainState");
 }
 
-void MainState::update(double) {
+void MainState::update(double, const Keyboard &) {
 }
 
 void MainState::draw() {
