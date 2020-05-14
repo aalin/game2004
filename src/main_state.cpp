@@ -70,8 +70,8 @@ void MainState::draw() {
 
 	glm::mat4 projMatrix = glm::perspective(45.0, 4.0 / 3.0, 0.1, 100.0);
 
-	const glm::vec3 cameraPosition(_playerPosition.x / 1.5, _playerPosition.y - 5, 3);
-	const glm::vec3 lightPosition(0, _playerPosition.y - 8, 8);
+	const glm::vec3 cameraPosition(_playerPosition.x * 1.2, _playerPosition.y - 5, 3);
+	const glm::vec3 lightPosition(_playerPosition.x, _playerPosition.y - 2, 8);
 
 	glm::mat4 viewMatrix = glm::lookAt(
 		cameraPosition,
