@@ -9,31 +9,8 @@ MainState::MainState(Engine& engine) :
 GameState(engine),
 _shaderProgram(ShaderProgram::load("shaders/main")),
 _levelShader(ShaderProgram::load("shaders/level")),
-_playerMesh(Mesh::PrimitiveType::Triangles),
 _level("levels/level1") {
 	Logger::log("Constructing MainState");
-
-	const float w = 0.5;
-
-	_playerPosition = glm::vec3(0.0, 1.0, 0.01);
-
-	_playerMesh.addBuffer("aPosition", std::vector<glm::vec3>({
-		glm::vec3(-w, 0, 0.0),
-		glm::vec3( w, 0, 0.0),
-		glm::vec3( 0, w, 0.0)
-	}));
-
-	_playerMesh.addBuffer("aNormal", std::vector<glm::vec3>({
-		glm::vec3(0.0, 0.0, 1.0),
-		glm::vec3(0.0, 0.0, 1.0),
-		glm::vec3(0.0, 0.0, 1.0),
-	}));
-
-	_playerMesh.addBuffer("aColor", std::vector<glm::vec3>({
-		glm::vec3(0.0, 0.0, 0.0),
-		glm::vec3(0.0, 0.0, 0.0),
-		glm::vec3(1.0, 1.0, 1.0),
-	}));
 }
 
 MainState::~MainState() {
@@ -61,8 +38,8 @@ void MainState::update(double dt, const Keyboard & keyboard) {
 		sideways += sideSpeed;
 	}
 
-	_playerPosition.x += sideways * dt;
-	_playerPosition.y += forward * dt;
+	_player.moveY(forward * dt);
+	_player.moveX(sideways * dt);
 }
 
 void MainState::draw() {
@@ -70,12 +47,14 @@ void MainState::draw() {
 
 	glm::mat4 projMatrix = glm::perspective(45.0, 4.0 / 3.0, 0.1, 100.0);
 
-	const glm::vec3 cameraPosition(_playerPosition.x * 1.2, _playerPosition.y - 5, 3);
-	const glm::vec3 lightPosition(_playerPosition.x, _playerPosition.y - 2, 8);
+	const glm::vec3 playerPosition = _player.position();
+
+	const glm::vec3 cameraPosition(playerPosition.x * 1.2, playerPosition.y - 5, 3);
+	const glm::vec3 lightPosition(playerPosition.x, playerPosition.y - 2, 8);
 
 	glm::mat4 viewMatrix = glm::lookAt(
 		cameraPosition,
-		_playerPosition,
+		playerPosition,
 		glm::vec3(0, 0, 1)
 	);
 
@@ -91,7 +70,7 @@ void MainState::draw() {
 	_levelShader.uniform("uCameraPosition", cameraPosition);
 	_level.render(_levelShader);
 
-	modelMatrix = glm::translate(modelMatrix, _playerPosition);
+	modelMatrix = glm::translate(modelMatrix, playerPosition);
 
 	mvp = projMatrix * viewMatrix * modelMatrix;
 	normalMatrix = glm::inverseTranspose(viewMatrix * modelMatrix);
@@ -99,5 +78,5 @@ void MainState::draw() {
 	_levelShader.uniform("uMVPMatrix", mvp);
 	_levelShader.uniform("uNormalMatrix", normalMatrix);
 
-	_playerMesh.render(_levelShader);
+	_player.render(_levelShader);
 }

@@ -4,7 +4,7 @@
 #include "game_state.hpp"
 #include "engine.hpp"
 #include "shader_program.hpp"
-#include "mesh.hpp"
+#include "player.hpp"
 #include "level.hpp"
 
 class MainState : public GameState {
@@ -20,11 +20,10 @@ class MainState : public GameState {
 	private:
 		ShaderProgram _shaderProgram;
 		ShaderProgram _levelShader;
-		Mesh _playerMesh;
 
+		Player _player;
 		Level _level;
 
-		glm::vec3 _playerPosition;
 };
 
 #endif
