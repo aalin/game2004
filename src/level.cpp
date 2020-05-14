@@ -6,6 +6,35 @@
 #include <glm/glm.hpp>
 #include <glm/gtx/normal.hpp>
 
+int charToInt(char c) {
+	if (c >= '0' && c <= '9') {
+		return c - '0';
+	}
+
+	if (c >= 'A' && c <= 'Z') {
+		return c - 'A';
+	}
+
+	if (c >= 'a' && c <= 'z') {
+		return c - 'a';
+	}
+
+	return -1;
+}
+
+const float BLOCK_HEIGHT = 0.4;
+const float BLOCK_LOWER_HEIGHT = -0.2;
+
+float calculateHeight(char blockCode) {
+	const float height = charToInt(blockCode) * BLOCK_HEIGHT;
+
+	if (height < 0) {
+		return BLOCK_LOWER_HEIGHT;
+	}
+
+	return height;
+}
+
 std::vector<Level::Segment> loadBlocks(const char *filename) {
 	std::ifstream is(filename);
 
@@ -17,9 +46,15 @@ std::vector<Level::Segment> loadBlocks(const char *filename) {
 	}
 
 	while (!is.eof()) {
+		char rawHeights[Level::BLOCKS_PER_SEGMENT];
+		is.read(&rawHeights[0], Level::BLOCKS_PER_SEGMENT);
+
 		Level::Segment segment;
-		is.read(&segment.blocks[0], 9);
-		INFO("blocks", std::string(segment.blocks, 9));
+		INFO("blocks", std::string(rawHeights, Level::BLOCKS_PER_SEGMENT));
+
+		for (unsigned int i = 0; i < Level::BLOCKS_PER_SEGMENT; i++) {
+			segment.blocks[i].height = calculateHeight(rawHeights[i]);
+		}
 
 		segments.push_back(segment);
 
@@ -63,20 +98,18 @@ void addQuad(std::vector<glm::vec3> &vertices, std::vector<glm::vec3> &normals, 
 	normals.push_back(normal);
 }
 
-int getSegmentValue(const std::vector<Level::Segment> &segments, int x, int y) {
-	const int blockIndex = 9 - x - 1;
-
-	if (blockIndex < 0 || blockIndex > 9) {
-		return -1;
+float getSegmentHeight(const std::vector<Level::Segment> &segments, int x, int y) {
+	if (x < 0 || x >= static_cast<int>(Level::BLOCKS_PER_SEGMENT)) {
+		return BLOCK_LOWER_HEIGHT;
 	}
 
-	const int value = segments[y].blocks[blockIndex] - 48;
-
-	if (value < 0 || value > 9) {
-		return -1;
+	if (y < 0 || y >= static_cast<int>(segments.size())) {
+		return BLOCK_LOWER_HEIGHT;
 	}
 
-	return value;
+	const int blockIndex = Level::BLOCKS_PER_SEGMENT - x - 1;
+
+	return segments[y].blocks[blockIndex].height;
 }
 
 Level::Level(const char *filename) :
@@ -90,15 +123,12 @@ _mesh(Mesh::PrimitiveType::Triangles) {
 	std::vector<glm::vec3> normals;
 
 	for (unsigned int y = 0; y < _segments.size(); y++) {
-		for (unsigned int x = 0; x < 9; x++) {
-			const int value = getSegmentValue(_segments, x, y);
+		for (unsigned int x = 0; x < Level::BLOCKS_PER_SEGMENT; x++) {
+			const float height = getSegmentHeight(_segments, x, y);
 
-			if (value == -1) {
+			if (height < 0) {
 				continue;
 			}
-
-			const float height = 0.4;
-			const float bottomHeight = 0.2;
 
 			const float x0 = x - 4.5;
 			const float x1 = x0 + 1;
@@ -106,7 +136,7 @@ _mesh(Mesh::PrimitiveType::Triangles) {
 			const float y0 = y;
 			const float y1 = y + 1;
 
-			const float z = value * height;
+			const float z = height;
 
 			addQuad(
 				vertices,
@@ -117,19 +147,41 @@ _mesh(Mesh::PrimitiveType::Triangles) {
 				glm::vec3({ x1, y1, z })
 			);
 
-			const glm::vec3 c0 = colorAt(y0 / 10 + z / 20);
-			const glm::vec3 c1 = colorAt(y1 / 10 + z / 20);
+			const glm::vec3 c0 = colorAt(y0 / 10);
+			const glm::vec3 c1 = colorAt(y1 / 10);
 
 			addQuad(colors, c0, c0, c1, c1);
+
+			// Front
+
+			{
+				const float sideHeight = getSegmentHeight(_segments, x, y - 1);
+
+				if (sideHeight < height) {
+					const float z1 = z;
+					const float z2 = sideHeight;
+
+					addQuad(
+						vertices,
+						normals,
+						glm::vec3({ x1, y0, z1 }),
+						glm::vec3({ x0, y0, z1 }),
+						glm::vec3({ x1, y0, z2 }),
+						glm::vec3({ x0, y0, z2 })
+					);
+
+					addQuad(colors, c0, c0, c0, c0);
+				}
+			}
 
 			// Left
 
 			{
-				const int sideValue = getSegmentValue(_segments, x - 1, y);
+				const float sideHeight = getSegmentHeight(_segments, x - 1, y);
 
-				if (sideValue < value) {
+				if (sideHeight < height) {
 					const float z1 = z;
-					const float z2 = sideValue < 0 ? -bottomHeight : sideValue * height;
+					const float z2 = sideHeight;
 
 					addQuad(
 						vertices,
@@ -147,11 +199,11 @@ _mesh(Mesh::PrimitiveType::Triangles) {
 			// Right
 
 			{
-				const int sideValue = getSegmentValue(_segments, x + 1, y);
+				const float sideHeight = getSegmentHeight(_segments, x + 1, y);
 
-				if (sideValue < value) {
+				if (sideHeight < height) {
 					const float z1 = z;
-					const float z2 = sideValue < 0 ? -bottomHeight : sideValue * height;
+					const float z2 = sideHeight;
 
 					addQuad(
 						vertices,
@@ -163,28 +215,6 @@ _mesh(Mesh::PrimitiveType::Triangles) {
 					);
 
 					addQuad(colors, c1, c0, c1, c0);
-				}
-			}
-
-			// Front
-
-			{
-				const int sideValue = getSegmentValue(_segments, x, y - 1);
-
-				if (sideValue < value) {
-					const float z1 = z;
-					const float z2 = sideValue < 0 ? -bottomHeight : sideValue * height;
-
-					addQuad(
-						vertices,
-						normals,
-						glm::vec3({ x1, y0, z1 }),
-						glm::vec3({ x0, y0, z1 }),
-						glm::vec3({ x1, y0, z2 }),
-						glm::vec3({ x0, y0, z2 })
-					);
-
-					addQuad(colors, c0, c0, c0, c0);
 				}
 			}
 		}

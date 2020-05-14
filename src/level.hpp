@@ -5,8 +5,16 @@
 
 class Level {
 	public:
+		constexpr static unsigned int BLOCKS_PER_SEGMENT = 9;
+
+		struct Block {
+			glm::vec3 up;
+			glm::vec3 center;
+			float height;
+		};
+
 		struct Segment {
-			char blocks[9];
+			Block blocks[BLOCKS_PER_SEGMENT];
 		};
 
 		Level(const char *filename);
