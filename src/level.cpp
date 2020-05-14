@@ -54,8 +54,6 @@ void addQuad(std::vector<glm::vec3> &vertices, std::vector<glm::vec3> &normals, 
 
 	const glm::vec3 normal = glm::triangleNormal(v00, v01, v11);
 
-	INFO("Normal", normal.x, normal.y, normal.z);
-
 	normals.push_back(normal);
 	normals.push_back(normal);
 	normals.push_back(normal);
@@ -65,8 +63,14 @@ void addQuad(std::vector<glm::vec3> &vertices, std::vector<glm::vec3> &normals, 
 	normals.push_back(normal);
 }
 
-int getSegmentValue(const std::vector<Level::Segment> &segments, unsigned int x, unsigned int y) {
-	const int value = segments[y].blocks[9 - x - 1] - 48;
+int getSegmentValue(const std::vector<Level::Segment> &segments, int x, int y) {
+	const int blockIndex = 9 - x - 1;
+
+	if (blockIndex < 0 || blockIndex > 9) {
+		return -1;
+	}
+
+	const int value = segments[y].blocks[blockIndex] - 48;
 
 	if (value < 0 || value > 9) {
 		return -1;
@@ -93,13 +97,16 @@ _mesh(Mesh::PrimitiveType::Triangles) {
 				continue;
 			}
 
+			const float height = 0.4;
+			const float bottomHeight = 0.2;
+
 			const float x0 = x - 4.5;
 			const float x1 = x0 + 1;
 
 			const float y0 = y;
 			const float y1 = y + 1;
 
-			const float z = value / 2.0;
+			const float z = value * height;
 
 			addQuad(
 				vertices,
@@ -110,20 +117,63 @@ _mesh(Mesh::PrimitiveType::Triangles) {
 				glm::vec3({ x1, y1, z })
 			);
 
-			const glm::vec3 c0 = colorAt(y0 / 100 + z / 20);
-			const glm::vec3 c1 = colorAt(y1 / 100 + z / 20);
+			const glm::vec3 c0 = colorAt(y0 / 10 + z / 20);
+			const glm::vec3 c1 = colorAt(y1 / 10 + z / 20);
 
 			addQuad(colors, c0, c0, c1, c1);
 
-			if (y > 0) {
-				const int prevValue = getSegmentValue(_segments, x, y - 1);
+			// Left
 
-				if (prevValue >= 0 && prevValue != value) {
-					const float zPrev = prevValue / 2.0;
-					Logger::log("prevValue", prevValue);
+			{
+				const int sideValue = getSegmentValue(_segments, x - 1, y);
 
-					float z1 = z;
-					float z2 = zPrev;
+				if (sideValue < value) {
+					const float z1 = z;
+					const float z2 = sideValue < 0 ? -bottomHeight : sideValue * height;
+
+					addQuad(
+						vertices,
+						normals,
+						glm::vec3({ x0, y0, z1 }),
+						glm::vec3({ x0, y1, z1 }),
+						glm::vec3({ x0, y0, z2 }),
+						glm::vec3({ x0, y1, z2 })
+					);
+
+					addQuad(colors, c0, c1, c0, c1);
+				}
+			}
+
+			// Right
+
+			{
+				const int sideValue = getSegmentValue(_segments, x + 1, y);
+
+				if (sideValue < value) {
+					const float z1 = z;
+					const float z2 = sideValue < 0 ? -bottomHeight : sideValue * height;
+
+					addQuad(
+						vertices,
+						normals,
+						glm::vec3({ x1, y1, z1 }),
+						glm::vec3({ x1, y0, z1 }),
+						glm::vec3({ x1, y1, z2 }),
+						glm::vec3({ x1, y0, z2 })
+					);
+
+					addQuad(colors, c1, c0, c1, c0);
+				}
+			}
+
+			// Front
+
+			{
+				const int sideValue = getSegmentValue(_segments, x, y - 1);
+
+				if (sideValue < value) {
+					const float z1 = z;
+					const float z2 = sideValue < 0 ? -bottomHeight : sideValue * height;
 
 					addQuad(
 						vertices,
@@ -134,19 +184,6 @@ _mesh(Mesh::PrimitiveType::Triangles) {
 						glm::vec3({ x0, y0, z2 })
 					);
 
-					addQuad(colors, c0, c0, c0, c0);
-				} else if (prevValue == -1) {
-					float z1 = z;
-					float z2 = -1;
-
-					addQuad(
-						vertices,
-						normals,
-						glm::vec3({ x1, y0, z1 }),
-						glm::vec3({ x0, y0, z1 }),
-						glm::vec3({ x1, y0, z2 }),
-						glm::vec3({ x0, y0, z2 })
-					);
 					addQuad(colors, c0, c0, c0, c0);
 				}
 			}
