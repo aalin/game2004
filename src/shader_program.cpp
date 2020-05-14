@@ -39,11 +39,12 @@ ShaderProgram ShaderProgram::load(std::string basename) {
 	Shader vertShader(Shader::VertexShader, basename + ".vert.glsl");
 	Shader fragShader(Shader::FragmentShader, basename + ".frag.glsl");
 
-	return ShaderProgram(vertShader, fragShader);
+	return ShaderProgram(basename, vertShader, fragShader);
 }
 
-ShaderProgram::ShaderProgram(Shader &vertShader, Shader &fragShader) {
-	Logger::log("Constructing ShaderProgram");
+ShaderProgram::ShaderProgram(std::string name, Shader &vertShader, Shader &fragShader)
+: _name(name) {
+	Logger::log("Constructing ShaderProgram", _name);
 
 	_program = glCreateProgram();
 

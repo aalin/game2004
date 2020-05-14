@@ -17,6 +17,10 @@ class Player {
 			_mesh.render(shaderProgram);
 		}
 
+		void renderFire(const ShaderProgram& shaderProgram) {
+			_fireMesh.render(shaderProgram);
+		}
+
 		const glm::vec3& position() const {
 			return _position;
 		}
@@ -31,6 +35,7 @@ class Player {
 
 	private:
 		Mesh _mesh;
+		Mesh _fireMesh;
 		glm::vec3 _position;
 		glm::vec3 _speed;
 };

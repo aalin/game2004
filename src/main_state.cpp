@@ -7,8 +7,8 @@
 
 MainState::MainState(Engine& engine) :
 GameState(engine),
-_shaderProgram(ShaderProgram::load("shaders/main")),
 _levelShader(ShaderProgram::load("shaders/level")),
+_fireShader(ShaderProgram::load("shaders/fire")),
 _level("levels/level1") {
 	Logger::log("Constructing MainState");
 }
@@ -44,13 +44,14 @@ void MainState::update(double dt, const Keyboard & keyboard) {
 
 void MainState::draw() {
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+	glEnable(GL_CULL_FACE);
 
 	glm::mat4 projMatrix = glm::perspective(45.0, 4.0 / 3.0, 0.1, 100.0);
 
 	const glm::vec3 playerPosition = _player.position();
 
-	const glm::vec3 cameraPosition(playerPosition.x * 1.2, playerPosition.y - 5, 3);
-	const glm::vec3 lightPosition(playerPosition.x, playerPosition.y - 2, 8);
+	const glm::vec3 cameraPosition(playerPosition.x * 1.2, playerPosition.y - 10, 5);
+	const glm::vec3 lightPosition(playerPosition.x, playerPosition.y - 5, 8);
 
 	glm::mat4 viewMatrix = glm::lookAt(
 		cameraPosition,
@@ -71,6 +72,7 @@ void MainState::draw() {
 	_level.render(_levelShader);
 
 	modelMatrix = glm::translate(modelMatrix, playerPosition);
+	modelMatrix = glm::translate(modelMatrix, glm::vec3(0.0, 0.0, 0.5));
 
 	mvp = projMatrix * viewMatrix * modelMatrix;
 	normalMatrix = glm::inverseTranspose(viewMatrix * modelMatrix);
@@ -79,4 +81,12 @@ void MainState::draw() {
 	_levelShader.uniform("uNormalMatrix", normalMatrix);
 
 	_player.render(_levelShader);
+
+	glDisable(GL_CULL_FACE);
+
+	_fireShader.use();
+	_fireShader.uniform("uMVPMatrix", mvp);
+	_fireShader.uniform("uTime", glfwGetTime());
+	_player.renderFire(_fireShader);
+
 }

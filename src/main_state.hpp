@@ -18,8 +18,8 @@ class MainState : public GameState {
 		void draw();
 
 	private:
-		ShaderProgram _shaderProgram;
 		ShaderProgram _levelShader;
+		ShaderProgram _fireShader;
 
 		Player _player;
 		Level _level;

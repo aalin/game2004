@@ -17,7 +17,7 @@ class ShaderProgram {
 
 		typedef std::map<std::string, Attribute> AttributeMap;
 
-		ShaderProgram(Shader& vertexShader, Shader& fragmentShader);
+		ShaderProgram(std::string name, Shader& vertexShader, Shader& fragmentShader);
 		~ShaderProgram();
 
 		static ShaderProgram load(std::string basename);
@@ -34,6 +34,10 @@ class ShaderProgram {
 
 		void uniform(std::string name, const glm::vec3& vec3) {
 			glUniform3fv(getAttribute(name, _uniforms).location, 1, &vec3[0]);
+		}
+
+		void uniform(std::string name, double value) {
+			glUniform1f(getAttribute(name, _uniforms).location, static_cast<float>(value));
 		}
 
 		void uniform(std::string name, float value) {
@@ -55,13 +59,14 @@ class ShaderProgram {
 		}
 
 	private:
+		std::string _name;
 		AttributeMap _uniforms;
 		AttributeMap _attributes;
 		unsigned int _program;
 
 		const Attribute& getAttribute(std::string name, const AttributeMap &attributes) const {
 			if (attributes.count(name) == 0) {
-				Logger::error("Could not find uniform", name, "in shader");
+				Logger::error("Could not find uniform", name, "in shader", _name);
 				throw;
 			}
 
