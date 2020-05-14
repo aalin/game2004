@@ -9,20 +9,30 @@ MainState::MainState(Engine& engine) :
 GameState(engine),
 _shaderProgram(ShaderProgram::load("shaders/main")),
 _levelShader(ShaderProgram::load("shaders/level")),
-_triangleMesh(Mesh::PrimitiveType::Triangles),
+_playerMesh(Mesh::PrimitiveType::Triangles),
 _level("levels/level1") {
 	Logger::log("Constructing MainState");
 
-	_triangleMesh.addBuffer("aPosition", std::vector<glm::vec3>({
-		glm::vec3(-1.0f,-1.0f, 5.0f),
-		glm::vec3( 1.0f,-1.0f, 5.0f),
-		glm::vec3(-1.0f, 1.0f, 5.0f),
+	const float w = 0.5;
+
+	_playerPosition = glm::vec3(0.0, 1.0, 0.01);
+
+	_playerMesh.addBuffer("aPosition", std::vector<glm::vec3>({
+		glm::vec3(-w, 0, 0.0),
+		glm::vec3( w, 0, 0.0),
+		glm::vec3( 0, w, 0.0)
 	}));
 
-	_triangleMesh.addBuffer("aColor", std::vector<glm::vec3>({
-		glm::vec3(1.0f, 0.0f, 0.0f),
-		glm::vec3(0.0f, 1.0f, 0.0f),
-		glm::vec3(0.0f, 0.0f, 1.0f),
+	_playerMesh.addBuffer("aNormal", std::vector<glm::vec3>({
+		glm::vec3(0.0, 0.0, 1.0),
+		glm::vec3(0.0, 0.0, 1.0),
+		glm::vec3(0.0, 0.0, 1.0),
+	}));
+
+	_playerMesh.addBuffer("aColor", std::vector<glm::vec3>({
+		glm::vec3(0.0, 0.0, 0.0),
+		glm::vec3(0.0, 0.0, 0.0),
+		glm::vec3(1.0, 1.0, 1.0),
 	}));
 }
 
@@ -30,7 +40,29 @@ MainState::~MainState() {
 	Logger::log("Destructing MainState");
 }
 
-void MainState::update(double, const Keyboard &) {
+void MainState::update(double dt, const Keyboard & keyboard) {
+	float sideways = 0.0;
+	float forward = 0.0;
+	const float sideSpeed = 3.0;
+
+	if (keyboard.isPressed(GLFW_KEY_UP)) {
+		forward += 4.0;
+	}
+
+	if (keyboard.isPressed(GLFW_KEY_DOWN)) {
+		forward -= 1.0;
+	}
+
+	if (keyboard.isPressed(GLFW_KEY_LEFT)) {
+		sideways -= sideSpeed;
+	}
+
+	if (keyboard.isPressed(GLFW_KEY_RIGHT)) {
+		sideways += sideSpeed;
+	}
+
+	_playerPosition.x += sideways * dt;
+	_playerPosition.y += forward * dt;
 }
 
 void MainState::draw() {
@@ -38,14 +70,12 @@ void MainState::draw() {
 
 	glm::mat4 projMatrix = glm::perspective(45.0, 4.0 / 3.0, 0.1, 100.0);
 
-	const float x = (std::cos(glfwGetTime() / 1.0)) * 2.0;
-	const float y = std::fmod(glfwGetTime(), 50.0) - 5;
-
-	const glm::vec3 cameraPosition(x, y, 5);
+	const glm::vec3 cameraPosition(_playerPosition.x / 1.5, _playerPosition.y - 5, 3);
+	const glm::vec3 lightPosition(0, _playerPosition.y - 8, 8);
 
 	glm::mat4 viewMatrix = glm::lookAt(
 		cameraPosition,
-		glm::vec3(0, y + 10, 0),
+		_playerPosition,
 		glm::vec3(0, 0, 1)
 	);
 
@@ -57,12 +87,17 @@ void MainState::draw() {
 	_levelShader.use();
 	_levelShader.uniform("uMVPMatrix", mvp);
 	_levelShader.uniform("uNormalMatrix", normalMatrix);
-	_levelShader.uniform("uLightPosition", glm::vec3(x, y + 5, 10));
+	_levelShader.uniform("uLightPosition", lightPosition);
 	_levelShader.uniform("uCameraPosition", cameraPosition);
 	_level.render(_levelShader);
 
-	//_shaderProgram.use();
-	//_shaderProgram.uniform("MVP", mvp);
-	//_triangleMesh.render(_shaderProgram);
+	modelMatrix = glm::translate(modelMatrix, _playerPosition);
 
+	mvp = projMatrix * viewMatrix * modelMatrix;
+	normalMatrix = glm::inverseTranspose(viewMatrix * modelMatrix);
+
+	_levelShader.uniform("uMVPMatrix", mvp);
+	_levelShader.uniform("uNormalMatrix", normalMatrix);
+
+	_playerMesh.render(_levelShader);
 }

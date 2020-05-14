@@ -20,9 +20,11 @@ class MainState : public GameState {
 	private:
 		ShaderProgram _shaderProgram;
 		ShaderProgram _levelShader;
-		Mesh _triangleMesh;
+		Mesh _playerMesh;
 
 		Level _level;
+
+		glm::vec3 _playerPosition;
 };
 
 #endif

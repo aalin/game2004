@@ -16,7 +16,7 @@ class Keyboard {
 			_keyStates.erase(key);
 		}
 
-		bool isPressed(int key) {
+		bool isPressed(int key) const {
 			return _keyStates.count(key) == 1;
 		}
 
