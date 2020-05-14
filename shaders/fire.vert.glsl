@@ -25,16 +25,23 @@ float rand(vec2 co) {
 }
 
 vec3 color(float x) {
-  float r = 1.0 + (sin((x + 0.0 / 3.0) * 3.14159)) * 0.5;
-  float g = (sin((x + 1.0 / 3.0) * 3.14159));
-
-  return vec3(r, r - (g * g) * 0.25, 0.0);
+  return mix(vec3(0.5, 0.1, 0.0), vec3(0.5, 0.5, 0.0), fract(x));
 }
 
 void main() {
-  float rot = rand(vec2(floor(uTime * 10.0), aIndex)) * 3.14159;
-  vec4 position = vec4(aPosition, 1.0) * rotationY(rot * 2);
+  float rot = rand(vec2(floor(uTime * 5.0), aIndex));
+  vec4 position = vec4(aPosition, 1.0);
+
+  position = position * vec4(1.0, fract((uTime * aIndex) * 0.1), 1.0, 1.0);
+  position = position * rotationY(rot * 3.14159 * 2);
+
 	gl_Position = uMVPMatrix * position;
 
-  vColor = vec4(color(uTime * 3.0 + aIndex / 2.0), 0.5);
+  float alpha = 0.2;
+
+  if (aPosition.y < 0) {
+    alpha = 0.0;
+  }
+
+  vColor = vec4(color(fract(uTime * 3.0 + aIndex / 2.0)), alpha);
 }

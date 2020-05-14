@@ -45,12 +45,14 @@ void MainState::update(double dt, const Keyboard & keyboard) {
 void MainState::draw() {
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 	glEnable(GL_CULL_FACE);
+	glEnable(GL_DEPTH_TEST);
+	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
 	glm::mat4 projMatrix = glm::perspective(45.0, 4.0 / 3.0, 0.1, 100.0);
 
 	const glm::vec3 playerPosition = _player.position();
 
-	const glm::vec3 cameraPosition(playerPosition.x * 1.2, playerPosition.y - 10, 5);
+	const glm::vec3 cameraPosition(playerPosition.x * 1.2, playerPosition.y - 3, 2);
 	const glm::vec3 lightPosition(playerPosition.x, playerPosition.y - 5, 8);
 
 	glm::mat4 viewMatrix = glm::lookAt(
@@ -83,10 +85,23 @@ void MainState::draw() {
 	_player.render(_levelShader);
 
 	glDisable(GL_CULL_FACE);
+	glDisable(GL_DEPTH_TEST);
+	glBlendFunc(GL_SRC_ALPHA, GL_ONE);
+
+	const float offset = 0.06;
+	modelMatrix = glm::translate(modelMatrix, glm::vec3(-offset, 0.0, 0.0));
+	mvp = projMatrix * viewMatrix * modelMatrix;
 
 	_fireShader.use();
 	_fireShader.uniform("uMVPMatrix", mvp);
 	_fireShader.uniform("uTime", glfwGetTime());
 	_player.renderFire(_fireShader);
 
+	modelMatrix = glm::translate(modelMatrix, glm::vec3(offset * 2, 0.0, 0.0));
+	mvp = projMatrix * viewMatrix * modelMatrix;
+
+	_fireShader.use();
+	_fireShader.uniform("uMVPMatrix", mvp);
+	_fireShader.uniform("uTime", glfwGetTime() + 1.2345678);
+	_player.renderFire(_fireShader);
 }

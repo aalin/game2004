@@ -54,7 +54,7 @@ void buildModel(Mesh &mesh) {
 	std::vector<glm::vec3> normals;
 	std::vector<glm::vec3> colors;
 
-	const float scale = 0.1;
+	const float scale = 0.03;
 
 	const glm::vec3 color(0.5, 0.5, 0.8);
 
@@ -93,10 +93,25 @@ void buildFireModel(Mesh &mesh) {
 	std::vector<glm::vec3> positions;
 	std::vector<float> indexes;
 
-	for (int i = 0; i < 10; i++) {
+	for (int i = 0; i < 15; i++) {
+		const float w = 0.2;
+		const float l = 1.0;
+
 		positions.push_back(glm::vec3( 0.0, 0.0, 0.0));
-		positions.push_back(glm::vec3(-1.5,-1.8, 0.0));
-		positions.push_back(glm::vec3(-0.9,-1.5, 0.0));
+		positions.push_back(glm::vec3(  -w,  -l,  -w));
+		positions.push_back(glm::vec3(   w,  -l,  -w));
+
+		pushThrice(indexes, static_cast<float>(i));
+
+		positions.push_back(glm::vec3( 0.0, 0.0, 0.0));
+		positions.push_back(glm::vec3(   w,  -l,  -w));
+		positions.push_back(glm::vec3( 0.0,  -l,   w));
+
+		pushThrice(indexes, static_cast<float>(i));
+
+		positions.push_back(glm::vec3( 0.0, 0.0, 0.0));
+		positions.push_back(glm::vec3( 0.0,  -l,   w));
+		positions.push_back(glm::vec3(  -w,  -l,  -w));
 
 		pushThrice(indexes, static_cast<float>(i));
 	}
