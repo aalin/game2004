@@ -32,6 +32,14 @@ class ShaderProgram {
 			glUniformMatrix4fv(getAttribute(name, _uniforms).location, 1, GL_FALSE, &matrix[0][0]);
 		}
 
+		void uniform(std::string name, const glm::vec3& vec3) {
+			glUniform3fv(getAttribute(name, _uniforms).location, 1, &vec3[0]);
+		}
+
+		void uniform(std::string name, float value) {
+			glUniform1f(getAttribute(name, _uniforms).location, value);
+		}
+
 		unsigned int bindBuffer(std::string name, GLenum type, GLint buffer) const {
 			const Attribute &attribute = getAttribute(name, _attributes);
 

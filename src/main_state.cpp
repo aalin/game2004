@@ -3,6 +3,7 @@
 #include <GLFW/glfw3.h>
 #include <glm/glm.hpp>
 #include <glm/ext.hpp>
+#include <cmath>
 
 MainState::MainState(Engine& engine) :
 GameState(engine),
@@ -37,25 +38,31 @@ void MainState::draw() {
 
 	glm::mat4 projMatrix = glm::perspective(45.0, 4.0 / 3.0, 0.1, 100.0);
 
-	const float x = (std::cos(glfwGetTime() / 1.0)) * 1.0;
-	const float y = (std::sin(glfwGetTime() / 1.0)) * 1.0;
+	const float x = (std::cos(glfwGetTime() / 1.0)) * 2.0;
+	const float y = std::fmod(glfwGetTime(), 50.0) - 5;
+
+	const glm::vec3 cameraPosition(x, y, 5);
 
 	glm::mat4 viewMatrix = glm::lookAt(
-		glm::vec3(x, y - 7, 10),
-		glm::vec3(0, 10, 0),
+		cameraPosition,
+		glm::vec3(0, y + 10, 0),
 		glm::vec3(0, 0, 1)
 	);
 
 	glm::mat4 modelMatrix(1.0);
 
 	glm::mat4 mvp = projMatrix * viewMatrix * modelMatrix;
+	glm::mat4 normalMatrix = glm::inverseTranspose(viewMatrix * modelMatrix);
 
 	_levelShader.use();
-	_levelShader.uniform("MVP", mvp);
+	_levelShader.uniform("uMVPMatrix", mvp);
+	_levelShader.uniform("uNormalMatrix", normalMatrix);
+	_levelShader.uniform("uLightPosition", glm::vec3(x, y + 5, 10));
+	_levelShader.uniform("uCameraPosition", cameraPosition);
 	_level.render(_levelShader);
 
-	_shaderProgram.use();
-	_shaderProgram.uniform("MVP", mvp);
-	_triangleMesh.render(_shaderProgram);
+	//_shaderProgram.use();
+	//_shaderProgram.uniform("MVP", mvp);
+	//_triangleMesh.render(_shaderProgram);
 
 }

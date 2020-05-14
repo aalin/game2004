@@ -4,6 +4,7 @@
 #include <fstream>
 #include <cmath>
 #include <glm/glm.hpp>
+#include <glm/gtx/normal.hpp>
 
 std::vector<Level::Segment> loadBlocks(const char *filename) {
 	std::ifstream is(filename);
@@ -48,6 +49,22 @@ void addQuad(std::vector<glm::vec3> &vertices, glm::vec3 v00, glm::vec3 v01, glm
 	vertices.push_back(v10);
 }
 
+void addQuad(std::vector<glm::vec3> &vertices, std::vector<glm::vec3> &normals, glm::vec3 v00, glm::vec3 v01, glm::vec3 v10, glm::vec3 v11) {
+	addQuad(vertices, v00, v01, v10, v11);
+
+	const glm::vec3 normal = glm::triangleNormal(v00, v01, v11);
+
+	INFO("Normal", normal.x, normal.y, normal.z);
+
+	normals.push_back(normal);
+	normals.push_back(normal);
+	normals.push_back(normal);
+
+	normals.push_back(normal);
+	normals.push_back(normal);
+	normals.push_back(normal);
+}
+
 int getSegmentValue(const std::vector<Level::Segment> &segments, unsigned int x, unsigned int y) {
 	const int value = segments[y].blocks[9 - x - 1] - 48;
 
@@ -66,6 +83,7 @@ _mesh(Mesh::PrimitiveType::Triangles) {
 
 	std::vector<glm::vec3> vertices;
 	std::vector<glm::vec3> colors;
+	std::vector<glm::vec3> normals;
 
 	for (unsigned int y = 0; y < _segments.size(); y++) {
 		for (unsigned int x = 0; x < 9; x++) {
@@ -85,6 +103,7 @@ _mesh(Mesh::PrimitiveType::Triangles) {
 
 			addQuad(
 				vertices,
+				normals,
 				glm::vec3({ x0, y0, z }),
 				glm::vec3({ x1, y0, z }),
 				glm::vec3({ x0, y1, z }),
@@ -100,17 +119,34 @@ _mesh(Mesh::PrimitiveType::Triangles) {
 				const int prevValue = getSegmentValue(_segments, x, y - 1);
 
 				if (prevValue >= 0 && prevValue != value) {
-					const float z2 = prevValue / 2.0;
+					const float zPrev = prevValue / 2.0;
 					Logger::log("prevValue", prevValue);
+
+					float z1 = z;
+					float z2 = zPrev;
 
 					addQuad(
 						vertices,
-						glm::vec3({ x1, y0, z }),
-						glm::vec3({ x0, y0, z }),
+						normals,
+						glm::vec3({ x1, y0, z1 }),
+						glm::vec3({ x0, y0, z1 }),
 						glm::vec3({ x1, y0, z2 }),
 						glm::vec3({ x0, y0, z2 })
 					);
 
+					addQuad(colors, c0, c0, c0, c0);
+				} else if (prevValue == -1) {
+					float z1 = z;
+					float z2 = -1;
+
+					addQuad(
+						vertices,
+						normals,
+						glm::vec3({ x1, y0, z1 }),
+						glm::vec3({ x0, y0, z1 }),
+						glm::vec3({ x1, y0, z2 }),
+						glm::vec3({ x0, y0, z2 })
+					);
 					addQuad(colors, c0, c0, c0, c0);
 				}
 			}
@@ -118,6 +154,7 @@ _mesh(Mesh::PrimitiveType::Triangles) {
 	}
 
 	_mesh.addBuffer("aPosition", vertices);
+	_mesh.addBuffer("aNormal", normals);
 	_mesh.addBuffer("aColor", colors);
 }
 
