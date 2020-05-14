@@ -5,6 +5,7 @@ attribute float aIndex;
 
 uniform mat4 uMVPMatrix;
 uniform float uTime;
+uniform float uPlayerVelocity;
 
 varying vec4 vColor;
 
@@ -32,7 +33,10 @@ void main() {
   float rot = rand(vec2(floor(uTime * 5.0), aIndex));
   vec4 position = vec4(aPosition, 1.0);
 
-  position = position * vec4(1.0, fract((uTime * aIndex) * 0.1), 1.0, 1.0);
+  float scale = clamp(uPlayerVelocity, 0.001, 1.0);
+  float xyscale = 0.8 + scale;
+
+  position = position * vec4(xyscale, fract((uTime * aIndex) * scale), xyscale, 1.0);
   position = position * rotationY(rot * 3.14159 * 2);
 
 	gl_Position = uMVPMatrix * position;

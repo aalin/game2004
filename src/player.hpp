@@ -10,7 +10,8 @@ class Player {
 
 		void reset() {
 			_position = glm::vec3(0.0, 1.0, 0.01);
-			_speed = glm::vec3(0.0, 0.0, 0.0);
+			_movement = glm::vec3(0.0, 0.0, 0.0);
+			_velocity = glm::vec3(0.0, 0.0, 0.0);
 		}
 
 		void render(const ShaderProgram& shaderProgram) {
@@ -25,19 +26,31 @@ class Player {
 			return _position;
 		}
 
+		const glm::vec3& velocity() const {
+			return _velocity;
+		}
+
+		float getFireStrength() const {
+			return _fireStrength;
+		}
+
 		void moveX(float value) {
-			_position.x += value;
+			_movement.x = value;
 		}
 
 		void moveY(float value) {
-			_position.y += value;
+			_movement.y = value;
 		}
+
+		void update(double dt);
 
 	private:
 		Mesh _mesh;
 		Mesh _fireMesh;
 		glm::vec3 _position;
-		glm::vec3 _speed;
+		glm::vec3 _velocity;
+		glm::vec3 _movement;
+		float _fireStrength;
 };
 
 #endif

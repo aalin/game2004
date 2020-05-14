@@ -1,4 +1,5 @@
 #include "player.hpp"
+#include "logger.hpp"
 #include <glm/gtx/normal.hpp>
 
 struct Triangle {
@@ -130,4 +131,54 @@ _fireMesh(Mesh::PrimitiveType::Triangles) {
 }
 
 Player::~Player() {
+}
+
+float clamp(float x, float min, float max) {
+	if (x < min) {
+		return min;
+	} else if (x > max) {
+		return max;
+	}
+
+	return x;
+}
+
+void Player::update(double dt) {
+	const float dt2 = static_cast<float>(dt);
+
+	const float xAccelleration = 800.0;
+	const float yAccelleration = 1000.0;
+	const float fireAccelleration = 10.0;
+
+	const float xDrag = 2.0;
+	const float yDrag = 0.7;
+	const float fireDrag = 7.0;
+
+	// Y
+
+	_velocity.y += (_movement.y * yAccelleration) * dt2;
+
+	if (std::fabs(_movement.y) < 0.1) {
+		_velocity.y -= (_velocity.y * yDrag) * dt2;
+	}
+
+	_velocity.y = clamp(_velocity.y, -200.0, 5.0);
+
+	// X
+
+	_velocity.x += (_movement.x * xAccelleration) * dt2;
+
+	if (std::fabs(_movement.y) < 0.1) {
+		_velocity.x -= (_velocity.x * xDrag) * dt2;
+	}
+
+	_velocity.x = clamp(_velocity.x, -4.0, 4.0);
+
+	// Fire strength
+
+	_fireStrength += (_movement.y * fireAccelleration) * dt2;
+	_fireStrength -= (_fireStrength * fireDrag) * dt;
+	_fireStrength = clamp(_fireStrength, 0.0, 1.0);
+
+	_position += _velocity * dt2;
 }

@@ -20,10 +20,9 @@ MainState::~MainState() {
 void MainState::update(double dt, const Keyboard & keyboard) {
 	float sideways = 0.0;
 	float forward = 0.0;
-	const float sideSpeed = 3.0;
 
 	if (keyboard.isPressed(GLFW_KEY_UP)) {
-		forward += 4.0;
+		forward += 1.0;
 	}
 
 	if (keyboard.isPressed(GLFW_KEY_DOWN)) {
@@ -31,15 +30,18 @@ void MainState::update(double dt, const Keyboard & keyboard) {
 	}
 
 	if (keyboard.isPressed(GLFW_KEY_LEFT)) {
-		sideways -= sideSpeed;
+		sideways -= 1.0;
 	}
 
 	if (keyboard.isPressed(GLFW_KEY_RIGHT)) {
-		sideways += sideSpeed;
+		sideways += 1.0;
 	}
 
-	_player.moveY(forward * dt);
-	_player.moveX(sideways * dt);
+	const float x = static_cast<float>(dt);
+
+	_player.moveY(forward * x);
+	_player.moveX(sideways * x);
+	_player.update(dt);
 }
 
 void MainState::draw() {
@@ -51,6 +53,7 @@ void MainState::draw() {
 	glm::mat4 projMatrix = glm::perspective(45.0, 4.0 / 3.0, 0.1, 100.0);
 
 	const glm::vec3 playerPosition = _player.position();
+	const glm::vec3 playerVelocity = _player.velocity();
 
 	const glm::vec3 cameraPosition(playerPosition.x * 1.2, playerPosition.y - 3, 2);
 	const glm::vec3 lightPosition(playerPosition.x, playerPosition.y - 5, 8);
@@ -75,6 +78,7 @@ void MainState::draw() {
 
 	modelMatrix = glm::translate(modelMatrix, playerPosition);
 	modelMatrix = glm::translate(modelMatrix, glm::vec3(0.0, 0.0, 0.5));
+	modelMatrix = glm::rotate(modelMatrix, playerVelocity.x / 8.0f, glm::vec3(0.0f, 1.0f, 0.0f));
 
 	mvp = projMatrix * viewMatrix * modelMatrix;
 	normalMatrix = glm::inverseTranspose(viewMatrix * modelMatrix);
@@ -93,6 +97,7 @@ void MainState::draw() {
 	mvp = projMatrix * viewMatrix * modelMatrix;
 
 	_fireShader.use();
+	_fireShader.uniform("uPlayerVelocity", _player.getFireStrength());
 	_fireShader.uniform("uMVPMatrix", mvp);
 	_fireShader.uniform("uTime", glfwGetTime());
 	_player.renderFire(_fireShader);
@@ -100,7 +105,6 @@ void MainState::draw() {
 	modelMatrix = glm::translate(modelMatrix, glm::vec3(offset * 2, 0.0, 0.0));
 	mvp = projMatrix * viewMatrix * modelMatrix;
 
-	_fireShader.use();
 	_fireShader.uniform("uMVPMatrix", mvp);
 	_fireShader.uniform("uTime", glfwGetTime() + 1.2345678);
 	_player.renderFire(_fireShader);
