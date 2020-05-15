@@ -21,6 +21,7 @@ class MainState : public GameState {
 
 	private:
 		Framebuffer _framebuffer;
+		Framebuffer _fireFramebuffer;
 		ScreenRenderer _screenRenderer;
 		ShaderProgram _levelShader;
 		ShaderProgram _fireShader;

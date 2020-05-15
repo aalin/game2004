@@ -41,23 +41,27 @@ class ShaderProgram {
 			glVertexAttribPointer(location, size, type, normalized, stride, pointer);
 		}
 
-		void uniform(std::string name, const glm::mat4& matrix) const {
+		void uniform(std::string name, const glm::mat4 &matrix) const {
 			glUniformMatrix4fv(getAttribute(name, _uniforms).location, 1, GL_FALSE, &matrix[0][0]);
 		}
 
-		void uniform(std::string name, const glm::vec3& vec3) const {
+		void uniform(std::string name, const glm::vec3 &vec3) const {
 			glUniform3fv(getAttribute(name, _uniforms).location, 1, &vec3[0]);
 		}
 
-		void uniform(std::string name, double value) const {
+		void uniform(std::string name, const double &value) const {
 			glUniform1f(getAttribute(name, _uniforms).location, static_cast<float>(value));
 		}
 
-		void uniform(std::string name, float value) const {
+		void uniform(std::string name, const float &value) const {
 			glUniform1f(getAttribute(name, _uniforms).location, value);
 		}
 
-		void uniform(std::string name, int value) const {
+		void uniform(std::string name, const int &value) const {
+			glUniform1i(getAttribute(name, _uniforms).location, value);
+		}
+
+		void uniform(std::string name, const unsigned int &value) const {
 			glUniform1i(getAttribute(name, _uniforms).location, value);
 		}
 

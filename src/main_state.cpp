@@ -8,6 +8,7 @@
 MainState::MainState(Engine& engine) :
 GameState(engine),
 _framebuffer(engine.width(), engine.height()),
+_fireFramebuffer(engine.width(), engine.height()),
 _levelShader(ShaderProgram::load("shaders/level")),
 _fireShader(ShaderProgram::load("shaders/fire")),
 _level("levels/level1") {
@@ -91,14 +92,18 @@ void MainState::draw() {
 
 	_player.render(_levelShader);
 
+	_framebuffer.unbindFramebuffer();
+
+	// Render to screen
+
+	_framebuffer.bindTexture(0, _framebuffer.colorTextureId());
+	_screenRenderer.render();
+
+	// Render fire
+
 	glDisable(GL_CULL_FACE);
 	glDisable(GL_DEPTH_TEST);
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE);
-
-	_framebuffer.unbindFramebuffer();
-	_framebuffer.bindTexture(0, _framebuffer.depthTextureId());
-
-	_screenRenderer.render();
 
 	const float offset = 0.06;
 	modelMatrix = glm::translate(modelMatrix, glm::vec3(-offset, 0.0, 0.0));
@@ -108,6 +113,10 @@ void MainState::draw() {
 	_fireShader.uniform("uPlayerVelocity", _player.getFireStrength());
 	_fireShader.uniform("uMVPMatrix", mvp);
 	_fireShader.uniform("uTime", glfwGetTime());
+	_framebuffer.bindTexture(0, _framebuffer.depthTextureId());
+	_fireShader.uniform("uDepthTexture", 0);
+	_fireShader.uniform("uWidth", 800);
+	_fireShader.uniform("uHeight", 600);
 	_player.renderFire(_fireShader);
 
 	modelMatrix = glm::translate(modelMatrix, glm::vec3(offset * 2, 0.0, 0.0));
