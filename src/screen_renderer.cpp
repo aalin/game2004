@@ -29,7 +29,7 @@ void ScreenRenderer::render() const {
 	_shaderProgram.use();
 
 	_shaderProgram.uniform("uTexture", 0);
-	_shaderProgram.uniform("uColorTexture", true);
+	_shaderProgram.uniform("uColorTexture", false);
 
 	glBindBuffer(GL_ARRAY_BUFFER, _arrayBufferId);
 
