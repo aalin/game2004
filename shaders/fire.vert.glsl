@@ -26,17 +26,16 @@ float rand(vec2 co) {
 }
 
 vec3 color(float x) {
-  return mix(vec3(0.5, 0.1, 0.0), vec3(0.5, 0.5, 0.0), fract(x));
+  return mix(vec3(0.3, 0.0, 0.0), vec3(0.5, 0.5, 0.0), fract(x));
 }
 
 void main() {
-  float rot = rand(vec2(floor(uTime * 5.0), aIndex));
+  float rot = rand(vec2(floor(uTime * 10.0), aIndex));
   vec4 position = vec4(aPosition, 1.0);
 
-  float scale = clamp(uPlayerVelocity, 0.001, 1.0);
-  float xyscale = 0.8 + scale;
+  float xyscale = 0.8 + exp(uPlayerVelocity) / 16.0;
 
-  position = position * vec4(xyscale, fract((uTime * aIndex) * scale), xyscale, 1.0);
+  position = position * vec4(xyscale, fract((uTime * aIndex * max(0.001, uPlayerVelocity)) * xyscale), xyscale, 1.0);
   position = position * rotationY(rot * 3.14159 * 2);
 
 	gl_Position = uMVPMatrix * position;
@@ -47,5 +46,5 @@ void main() {
     alpha = 0.0;
   }
 
-  vColor = vec4(color(fract(uTime * 3.0 + aIndex / 2.0)), alpha);
+  vColor = vec4(color(rot), alpha);
 }

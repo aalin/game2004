@@ -78,7 +78,7 @@ void MainState::draw() {
 
 	modelMatrix = glm::translate(modelMatrix, playerPosition);
 	modelMatrix = glm::translate(modelMatrix, glm::vec3(0.0, 0.0, 0.5));
-	modelMatrix = glm::rotate(modelMatrix, playerVelocity.x / 8.0f, glm::vec3(0.0f, 1.0f, 0.0f));
+	modelMatrix = glm::rotate(modelMatrix, playerVelocity.x / 12.0f, glm::vec3(0.0f, 1.0f, 0.0f));
 
 	mvp = projMatrix * viewMatrix * modelMatrix;
 	normalMatrix = glm::inverseTranspose(viewMatrix * modelMatrix);

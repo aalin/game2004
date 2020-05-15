@@ -1,6 +1,7 @@
 #include "player.hpp"
 #include "logger.hpp"
 #include <glm/gtx/normal.hpp>
+#include <cmath>
 
 struct Triangle {
 	glm::vec3 a;
@@ -150,6 +151,9 @@ void Player::update(double dt) {
 	const float yAccelleration = 1000.0;
 	const float fireAccelleration = 10.0;
 
+	const float maxVelocityY = 8.0;
+	const float minVelocityY = 2.0;
+
 	const float xDrag = 2.0;
 	const float yDrag = 0.7;
 	const float fireDrag = 7.0;
@@ -162,17 +166,20 @@ void Player::update(double dt) {
 		_velocity.y -= (_velocity.y * yDrag) * dt2;
 	}
 
-	_velocity.y = clamp(_velocity.y, -200.0, 5.0);
+	_velocity.y = clamp(_velocity.y, -minVelocityY, maxVelocityY);
 
 	// X
 
-	_velocity.x += (_movement.x * xAccelleration) * dt2;
+	float extra = std::exp(std::abs(_velocity.y) / maxVelocityY);
+	const float maxVelocityX = 4.0 * extra;
 
-	if (std::fabs(_movement.y) < 0.1) {
+	_velocity.x += (_movement.x * xAccelleration * (extra + 1.0)) * dt2;
+
+	if (std::fabs(_movement.x) < 0.1) {
 		_velocity.x -= (_velocity.x * xDrag) * dt2;
 	}
 
-	_velocity.x = clamp(_velocity.x, -4.0, 4.0);
+	_velocity.x = clamp(_velocity.x, -maxVelocityX, maxVelocityX);
 
 	// Fire strength
 
