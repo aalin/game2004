@@ -8,6 +8,7 @@ int main() {
 	glfwWindowHint(GLFW_CONTEXT_CREATION_API, GLFW_NATIVE_CONTEXT_API);
 	glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 2);
 	glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 0);
+	glfwWindowHint(GLFW_RESIZABLE, 0);
 
 	if (!glfwInit()) {
 		std::cerr << "Could not initialize glfw" << std::endl;
