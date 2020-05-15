@@ -7,6 +7,7 @@
 
 MainState::MainState(Engine& engine) :
 GameState(engine),
+_framebuffer(engine.width(), engine.height(), 0),
 _levelShader(ShaderProgram::load("shaders/level")),
 _fireShader(ShaderProgram::load("shaders/fire")),
 _level("levels/level1") {
@@ -45,6 +46,8 @@ void MainState::update(double dt, const Keyboard & keyboard) {
 }
 
 void MainState::draw() {
+	_framebuffer.bindFramebuffer();
+
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 	glEnable(GL_CULL_FACE);
 	glEnable(GL_DEPTH_TEST);
@@ -108,4 +111,9 @@ void MainState::draw() {
 	_fireShader.uniform("uMVPMatrix", mvp);
 	_fireShader.uniform("uTime", glfwGetTime() + 1.2345678);
 	_player.renderFire(_fireShader);
+
+	_framebuffer.unbindFramebuffer();
+	_framebuffer.bindTexture(0);
+
+	_screenRenderer.render();
 }

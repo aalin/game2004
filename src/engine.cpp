@@ -21,7 +21,8 @@ void Engine::glfwKeyCallback(GLFWwindow*, int key, int scancode, int action, int
 	INSTANCE->keyboard(key, scancode, action, mods);
 }
 
-Engine::Engine(unsigned int width, unsigned int height) {
+Engine::Engine(unsigned int width, unsigned int height)
+: _width(width), _height(height) {
 	Logger::log("Constructing engine");
 
 	_running = false;

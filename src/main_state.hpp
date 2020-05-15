@@ -6,6 +6,8 @@
 #include "shader_program.hpp"
 #include "player.hpp"
 #include "level.hpp"
+#include "framebuffer.hpp"
+#include "screen_renderer.hpp"
 
 class MainState : public GameState {
 	public:
@@ -18,12 +20,13 @@ class MainState : public GameState {
 		void draw();
 
 	private:
+		Framebuffer _framebuffer;
+		ScreenRenderer _screenRenderer;
 		ShaderProgram _levelShader;
 		ShaderProgram _fireShader;
 
 		Player _player;
 		Level _level;
-
 };
 
 #endif

@@ -28,20 +28,37 @@ class ShaderProgram {
 			return _program;
 		}
 
-		void uniform(std::string name, const glm::mat4& matrix) {
+		void attribPointer(
+			GLuint arrayBufferId,
+			const std::string &name,
+			GLuint size,
+			GLenum type,
+			GLboolean normalized,
+			GLsizei stride,
+			const void *pointer
+		) const {
+			unsigned int location = bindBuffer(name, GL_ARRAY_BUFFER, arrayBufferId);
+			glVertexAttribPointer(location, size, type, normalized, stride, pointer);
+		}
+
+		void uniform(std::string name, const glm::mat4& matrix) const {
 			glUniformMatrix4fv(getAttribute(name, _uniforms).location, 1, GL_FALSE, &matrix[0][0]);
 		}
 
-		void uniform(std::string name, const glm::vec3& vec3) {
+		void uniform(std::string name, const glm::vec3& vec3) const {
 			glUniform3fv(getAttribute(name, _uniforms).location, 1, &vec3[0]);
 		}
 
-		void uniform(std::string name, double value) {
+		void uniform(std::string name, double value) const {
 			glUniform1f(getAttribute(name, _uniforms).location, static_cast<float>(value));
 		}
 
-		void uniform(std::string name, float value) {
+		void uniform(std::string name, float value) const {
 			glUniform1f(getAttribute(name, _uniforms).location, value);
+		}
+
+		void uniform(std::string name, int value) const {
+			glUniform1i(getAttribute(name, _uniforms).location, value);
 		}
 
 		unsigned int bindBuffer(std::string name, GLenum type, GLint buffer) const {

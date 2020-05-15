@@ -22,12 +22,23 @@ class Engine {
 
 		void keyboard(int key, int scancode, int action, int mods);
 
+		unsigned int width() const {
+			return _width;
+		}
+
+		unsigned int height() const {
+			return _height;
+		}
+
 	private:
 		static Engine* INSTANCE;
 
 		static Engine* getInstance() {
 			return INSTANCE;
 		}
+
+		const unsigned int _width;
+		const unsigned int _height;
 
 		GLFWwindow *_window;
 		bool _running;
