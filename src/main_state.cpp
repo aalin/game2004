@@ -94,12 +94,10 @@ void MainState::draw() {
 
 	_framebuffer.unbindFramebuffer();
 
-	// Render to screen
-
-	_framebuffer.bindTexture(0, _framebuffer.colorTextureId());
-	_screenRenderer.render();
-
 	// Render fire
+
+	_fireFramebuffer.bindFramebuffer();
+	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
 	glDisable(GL_CULL_FACE);
 	glDisable(GL_DEPTH_TEST);
@@ -125,4 +123,21 @@ void MainState::draw() {
 	_fireShader.uniform("uMVPMatrix", mvp);
 	_fireShader.uniform("uTime", glfwGetTime() + 1.2345678);
 	_player.renderFire(_fireShader);
+
+	_fireFramebuffer.unbindFramebuffer();
+
+	// Render to screen
+
+	glBindFramebuffer(GL_FRAMEBUFFER, 0);
+
+	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+	glDisable(GL_BLEND);
+
+	_framebuffer.bindTexture(0, _framebuffer.colorTextureId());
+	_screenRenderer.render();
+
+	glEnable(GL_BLEND);
+	glBlendFunc(GL_SRC_COLOR, GL_ONE);
+	_fireFramebuffer.bindTexture(0, _fireFramebuffer.colorTextureId());
+	_screenRenderer.render();
 }
