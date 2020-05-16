@@ -60,7 +60,7 @@ void buildModel(Mesh &mesh) {
 
 	const unsigned int count = sizeof(RIGHT_TRIANGLES) / sizeof(Triangle);
 
-	for (unsigned int i = 0; i <= count; i++) {
+	for (unsigned int i = 0; i < count; i++) {
 		const Triangle &right = RIGHT_TRIANGLES[i];
 
 		// Right side
