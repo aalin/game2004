@@ -9,6 +9,7 @@ class Keyboard {
 		void handlePress(int key, int scancode, int mods) {
 			Logger::log("handlePress key:", key, "scancode:", scancode, "mods:", mods);
 			_keyStates[key] = { scancode, mods };
+			_recentlyPressed[key] = true;
 		}
 
 		void handleRelease(int key) {
@@ -20,6 +21,14 @@ class Keyboard {
 			return _keyStates.count(key) == 1;
 		}
 
+		bool wasJustPressed(int key) const {
+			return _recentlyPressed.count(key) == 1;
+		}
+
+		void update() {
+			_recentlyPressed.clear();
+		}
+
 	private:
 		struct KeyState {
 			int scancode;
@@ -27,6 +36,7 @@ class Keyboard {
 		};
 
 		std::map<int, KeyState> _keyStates;
+		std::map<int, bool> _recentlyPressed;
 };
 
 #endif

@@ -96,6 +96,8 @@ void Engine::loop() {
 			currentState->update(delta, _keyboard);
 			currentState->draw();
 
+			_keyboard.update();
+
 			glPrintErrors();
 
 			glfwSwapBuffers(_window);
