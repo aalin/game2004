@@ -39,11 +39,15 @@ void MainState::update(double dt, const Keyboard & keyboard) {
 		sideways += 1.0;
 	}
 
+	if (keyboard.wasJustPressed(GLFW_KEY_SPACE)) {
+		_player.jump();
+	}
+
 	const float x = static_cast<float>(dt);
 
 	_player.moveY(forward * x);
 	_player.moveX(sideways * x);
-	_player.update(dt);
+	_player.update(dt, _level);
 }
 
 void MainState::draw() {
@@ -81,7 +85,7 @@ void MainState::draw() {
 	_level.render(_levelShader);
 
 	modelMatrix = glm::translate(modelMatrix, playerPosition);
-	modelMatrix = glm::translate(modelMatrix, glm::vec3(0.0, 0.0, 0.5));
+	modelMatrix = glm::translate(modelMatrix, glm::vec3(0.0, -0.5, 0.1));
 	modelMatrix = glm::rotate(modelMatrix, playerVelocity.x / 12.0f, glm::vec3(0.0f, 1.0f, 0.0f));
 
 	mvp = projMatrix * viewMatrix * modelMatrix;

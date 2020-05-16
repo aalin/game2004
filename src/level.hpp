@@ -24,6 +24,8 @@ class Level {
 			_mesh.render(shaderProgram);
 		}
 
+		float heightAt(float x, float y) const;
+
 	private:
 		std::vector<Segment> _segments;
 		Mesh _mesh;

@@ -225,6 +225,25 @@ _mesh(Mesh::PrimitiveType::Triangles) {
 	_mesh.addBuffer("aColor", colors);
 }
 
+float Level::heightAt(float x, float y) const {
+	constexpr float halfWidth = Level::BLOCKS_PER_SEGMENT / 2.0;
+
+	if (std::fabs(x) > halfWidth) {
+		return -1;
+	}
+
+	if (y < 0.0 || y > _segments.size()) {
+		return -1;
+	}
+
+	const int xi = static_cast<int>(halfWidth + x);
+	const int yi = static_cast<int>(y);
+
+	const Segment &segment = _segments[yi];
+
+	return segment.blocks[Level::BLOCKS_PER_SEGMENT - xi - 1].height;
+}
+
 Level::~Level() {
 	Logger::error("Destroying level");
 }

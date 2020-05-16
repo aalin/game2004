@@ -2,6 +2,7 @@
 #define PLAYER_HPP
 
 #include "mesh.hpp"
+#include "level.hpp"
 
 class Player {
 	public:
@@ -9,7 +10,7 @@ class Player {
 		~Player();
 
 		void reset() {
-			_position = glm::vec3(0.0, 1.0, 0.01);
+			_position = glm::vec3(0.0, 1.0, 0.1);
 			_movement = glm::vec3(0.0, 0.0, 0.0);
 			_velocity = glm::vec3(0.0, 0.0, 0.0);
 		}
@@ -42,7 +43,9 @@ class Player {
 			_movement.y = value;
 		}
 
-		void update(double dt);
+		void jump();
+
+		void update(double dt, const Level &level);
 
 	private:
 		Mesh _mesh;

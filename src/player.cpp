@@ -144,7 +144,15 @@ float clamp(float x, float min, float max) {
 	return x;
 }
 
-void Player::update(double dt) {
+void Player::jump() {
+	INFO("_velocity.z", _velocity.z);
+
+	if (std::fabs(_velocity.z) < 0.00001) {
+		_velocity.z = 5;
+	}
+}
+
+void Player::update(double dt, const Level &level) {
 	const float dt2 = static_cast<float>(dt);
 
 	const float xAccelleration = 800.0;
@@ -181,6 +189,11 @@ void Player::update(double dt) {
 
 	_velocity.x = clamp(_velocity.x, -maxVelocityX, maxVelocityX);
 
+	// Z
+
+	const float gravity = 10.0;
+	_velocity.z = _velocity.z - gravity * dt;
+
 	// Fire strength
 
 	_fireStrength += (_movement.y * fireAccelleration) * dt2;
@@ -188,4 +201,11 @@ void Player::update(double dt) {
 	_fireStrength = clamp(_fireStrength, 0.0, 1.0);
 
 	_position += _velocity * dt2;
+
+	const float levelHeight = level.heightAt(_position.x, _position.y);
+
+	if (_position.z < levelHeight) {
+		_velocity.z = 0.0;
+		_position.z = levelHeight;
+	}
 }
