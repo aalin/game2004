@@ -1,4 +1,5 @@
 #include "player.hpp"
+#include "utils.hpp"
 #include "logger.hpp"
 #include <glm/gtx/normal.hpp>
 #include <cmath>
@@ -222,4 +223,5 @@ void Player::update(double dt, const Level &level) {
 	}
 
 	_position = newPosition;
+	_xRotation = Utils::tween(_xRotation, _velocity.z, 8.0, dt);
 }

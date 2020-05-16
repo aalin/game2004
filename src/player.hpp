@@ -10,6 +10,7 @@ class Player {
 		~Player();
 
 		void reset() {
+			_xRotation = 0.0;
 			_position = glm::vec3(0.0, 1.0, 0.1);
 			_movement = glm::vec3(0.0, 0.0, 0.0);
 			_velocity = glm::vec3(0.0, 0.0, 0.0);
@@ -35,6 +36,10 @@ class Player {
 			return _fireStrength;
 		}
 
+		float getXRotation() const {
+			return _xRotation;
+		}
+
 		void moveX(float value) {
 			_movement.x = value;
 		}
@@ -53,6 +58,7 @@ class Player {
 		glm::vec3 _position;
 		glm::vec3 _velocity;
 		glm::vec3 _movement;
+		float _xRotation;
 		float _fireStrength;
 };
 

@@ -3,7 +3,6 @@
 #include <GLFW/glfw3.h>
 #include <glm/glm.hpp>
 #include <glm/ext.hpp>
-#include <cmath>
 
 MainState::MainState(Engine& engine) :
 GameState(engine),
@@ -91,6 +90,7 @@ void MainState::draw() {
 	modelMatrix = glm::translate(modelMatrix, playerPosition);
 	modelMatrix = glm::translate(modelMatrix, glm::vec3(0.0, -0.5, 0.1));
 	modelMatrix = glm::rotate(modelMatrix, playerVelocity.x / 12.0f, glm::vec3(0.0f, 1.0f, 0.0f));
+	modelMatrix = glm::rotate(modelMatrix, _player.getXRotation() / 8.0f, glm::vec3(1.0f, 0.0f, 0.0f));
 
 	mvp = projMatrix * viewMatrix * modelMatrix;
 	normalMatrix = glm::inverseTranspose(viewMatrix * modelMatrix);

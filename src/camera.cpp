@@ -1,7 +1,7 @@
 #include "camera.hpp"
+#include "utils.hpp"
 #include <glm/ext.hpp>
 #include <cmath>
-#include "logger.hpp"
 
 Camera::Camera() :
 	_position(0.0, 0.0, 0.0),
@@ -11,17 +11,9 @@ Camera::Camera() :
 	_up(0.0, 0.0, 1.0) {
 }
 
-glm::vec3 lerp(glm::vec3 x, glm::vec3 y, float t) {
-	return x * (1.0f - t) + y * t;
-}
-
-glm::vec3 tween(const glm::vec3 &from, const glm::vec3 &to, float speed, double dt) {
-	return lerp(from, to, std::fmin(dt * speed, 1.0));
-}
-
 void Camera::update(double dt) {
-	_position = tween(_position, _targetPosition, 5.0, dt);
-	_lookAt = tween(_lookAt, _targetLookAt, 5.0, dt);
+	_position = Utils::tween(_position, _targetPosition, 5.0, dt);
+	_lookAt = Utils::tween(_lookAt, _targetLookAt, 5.0, dt);
 
 	_matrix = glm::lookAt(
 		_position,
