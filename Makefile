@@ -1,9 +1,7 @@
-NUM_CORES=$(grep -c ^processor /proc/cpuinfo)
-
 default: game
 
 game: src
-	make -j ${NUM_CORES} -C src/
+	$(MAKE) -j -C src/
 
 clean:
-	make -C src/ clean
+	$(MAKE) -C src/ clean
