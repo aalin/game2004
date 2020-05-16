@@ -63,7 +63,9 @@ void MainState::draw() {
 	const glm::vec3 playerPosition = _player.position();
 	const glm::vec3 playerVelocity = _player.velocity();
 
-	const glm::vec3 cameraPosition(playerPosition.x * 1.2, playerPosition.y - 3, 2);
+	glm::vec3 cameraPosition(playerPosition.x * 1.2, playerPosition.y - 3, 0.0);
+	cameraPosition.z = std::max(_level.heightAt(cameraPosition.x, cameraPosition.y), playerPosition.z) + 2.0;
+
 	const glm::vec3 lightPosition(playerPosition.x, playerPosition.y - 5, 8);
 
 	glm::mat4 viewMatrix = glm::lookAt(

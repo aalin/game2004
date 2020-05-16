@@ -198,12 +198,28 @@ void Player::update(double dt, const Level &level) {
 	_fireStrength -= (_fireStrength * fireDrag) * dt;
 	_fireStrength = clamp(_fireStrength, 0.0, 1.0);
 
-	_position += _velocity * dt2;
+	// Collision and position update
 
-	const float levelHeight = level.heightAt(_position.x, _position.y);
+	glm::vec3 newPosition = _position + _velocity * dt2;
 
-	if (_position.z < levelHeight) {
-		_velocity.z = 0.0;
-		_position.z = levelHeight;
+	const float nextLevelHeight = level.heightAt(newPosition.x, newPosition.y);
+	const float currLevelHeight = level.heightAt(_position.x, _position.y);
+
+	constexpr float graceValue = 0.01;
+
+	if (nextLevelHeight < 0.0 && newPosition.z < currLevelHeight) {
+		INFO("We went outside the level!");
 	}
+
+	if (newPosition.z < nextLevelHeight) {
+		if (nextLevelHeight - graceValue > currLevelHeight) {
+			INFO("Crashed into something!!");
+			// Todo: Calculate how far into the object we have crashed
+		}
+
+		_velocity.z = 0.0;
+		newPosition.z = nextLevelHeight;
+	}
+
+	_position = newPosition;
 }
