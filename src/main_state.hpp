@@ -8,6 +8,7 @@
 #include "level.hpp"
 #include "framebuffer.hpp"
 #include "screen_renderer.hpp"
+#include "camera.hpp"
 
 class MainState : public GameState {
 	public:
@@ -26,6 +27,7 @@ class MainState : public GameState {
 		ShaderProgram _levelShader;
 		ShaderProgram _fireShader;
 
+		Camera _camera;
 		Player _player;
 		Level _level;
 };

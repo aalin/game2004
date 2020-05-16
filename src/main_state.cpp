@@ -48,6 +48,15 @@ void MainState::update(double dt, const Keyboard & keyboard) {
 	_player.moveY(forward * x);
 	_player.moveX(sideways * x);
 	_player.update(dt, _level);
+
+	const glm::vec3 playerPosition = _player.position();
+
+	glm::vec3 cameraPosition(playerPosition.x * 1.2, playerPosition.y - 3, 0.0);
+	cameraPosition.z = std::max(_level.heightAt(cameraPosition.x, cameraPosition.y), playerPosition.z) + 2.0;
+
+	_camera.move(cameraPosition);
+	_camera.lookAt(playerPosition);
+	_camera.update(dt);
 }
 
 void MainState::draw() {
@@ -63,16 +72,9 @@ void MainState::draw() {
 	const glm::vec3 playerPosition = _player.position();
 	const glm::vec3 playerVelocity = _player.velocity();
 
-	glm::vec3 cameraPosition(playerPosition.x * 1.2, playerPosition.y - 3, 0.0);
-	cameraPosition.z = std::max(_level.heightAt(cameraPosition.x, cameraPosition.y), playerPosition.z) + 2.0;
-
 	const glm::vec3 lightPosition(playerPosition.x, playerPosition.y - 5, 8);
 
-	glm::mat4 viewMatrix = glm::lookAt(
-		cameraPosition,
-		playerPosition,
-		glm::vec3(0, 0, 1)
-	);
+	glm::mat4 viewMatrix = _camera.getMatrix();
 
 	glm::mat4 modelMatrix(1.0);
 
@@ -83,7 +85,7 @@ void MainState::draw() {
 	_levelShader.uniform("uMVPMatrix", mvp);
 	_levelShader.uniform("uNormalMatrix", normalMatrix);
 	_levelShader.uniform("uLightPosition", lightPosition);
-	_levelShader.uniform("uCameraPosition", cameraPosition);
+	_levelShader.uniform("uCameraPosition", _camera.position());
 	_level.render(_levelShader);
 
 	modelMatrix = glm::translate(modelMatrix, playerPosition);
