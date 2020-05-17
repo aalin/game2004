@@ -25,6 +25,7 @@ class Level {
 		}
 
 		float heightAt(float x, float y) const;
+		glm::vec3 circleCollides(const glm::vec3 &position, float size) const;
 
 	private:
 		std::vector<Segment> _segments;

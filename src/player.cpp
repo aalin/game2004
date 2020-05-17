@@ -203,23 +203,24 @@ void Player::update(double dt, const Level &level) {
 
 	glm::vec3 newPosition = _position + _velocity * dt2;
 
-	const float nextLevelHeight = level.heightAt(newPosition.x, newPosition.y);
-	const float currLevelHeight = level.heightAt(_position.x, _position.y);
+	glm::vec3 collision = level.circleCollides(newPosition, 0.75);
 
-	constexpr float graceValue = 0.01;
-
-	if (nextLevelHeight < 0.0 && newPosition.z < currLevelHeight) {
-		INFO("We went outside the level!");
+	if (collision.z < 0.0 && newPosition.z < collision.z) {
+		INFO("We are outside the level!");
 	}
 
-	if (newPosition.z < nextLevelHeight) {
-		if (nextLevelHeight - graceValue > currLevelHeight) {
-			INFO("Crashed into something!!");
-			// Todo: Calculate how far into the object we have crashed
-		}
+	const float graceValue = 0.01;
 
+	if (collision.z - graceValue > std::max(_position.z, newPosition.z)) {
+		INFO("Crashed into something!!", collision.x, collision.y);
+		// Need to calculate the bounce direction properly. This is wrong.
+		_velocity.x = -_velocity.x;
+		_velocity.y = -_velocity.y;
 		_velocity.z = 0.0;
-		newPosition.z = nextLevelHeight;
+		newPosition = _position;
+	} else if (newPosition.z < collision.z) {
+		_velocity.z = 0.0;
+		newPosition.z = collision.z;
 	}
 
 	_position = newPosition;

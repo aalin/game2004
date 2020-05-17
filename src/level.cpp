@@ -3,6 +3,7 @@
 #include <string>
 #include <fstream>
 #include <cmath>
+#include <limits>
 #include <glm/glm.hpp>
 #include <glm/gtx/normal.hpp>
 
@@ -242,6 +243,64 @@ float Level::heightAt(float x, float y) const {
 	const Segment &segment = _segments[yi];
 
 	return segment.blocks[Level::BLOCKS_PER_SEGMENT - xi - 1].height;
+}
+
+glm::vec3 Level::circleCollides(const glm::vec3 &position, float radius) const {
+	// Almost everything here is incorrect.
+
+	glm::vec2 position2d(position.x, position.y);
+
+	const float currentHeight = heightAt(position.x, position.y);
+
+	const int xi = static_cast<int>(position.x);
+	const int yi = static_cast<int>(position.y);
+
+	glm::vec3 result(0.0, 0.0, currentHeight);
+
+	float minDiff = std::numeric_limits<float>::infinity();
+
+	for (int x = 0; x < 3; x++) {
+		const float x2 = x - 2.0;
+
+		for (int y = 0; y < 3; y++) {
+			if (y == 1 && x == 1) {
+				continue;
+			}
+
+			const float y2 = x - 2.0;
+			const float blockHeight = heightAt(position.x + x2, position.y + y2);
+
+			if (position.z > blockHeight) {
+				continue;
+			}
+
+			if (currentHeight > blockHeight) {
+				continue;
+			}
+
+			glm::vec2 blockCenter(xi + x2, yi + y2);
+			glm::vec2 difference = position2d - blockCenter;
+
+			glm::vec2 direction = glm::normalize(difference);
+
+			glm::vec2 clamped = glm::clamp(difference, -0.5f, 0.5f);
+			glm::vec2 closest = blockCenter + clamped;
+
+			difference = closest - position2d;
+
+			float diffLength = glm::length(difference);
+
+			if (diffLength < radius && diffLength < minDiff) {
+				result.x = direction.x * radius;
+				result.y = direction.y * radius;
+				result.z = blockHeight;
+
+				minDiff = diffLength;
+			}
+		}
+	}
+
+	return result;
 }
 
 Level::~Level() {
